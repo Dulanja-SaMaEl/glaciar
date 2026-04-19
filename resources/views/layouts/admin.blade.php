@@ -14,6 +14,7 @@
 
     <!-- CSS/JS via Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <!-- Required CDNs for Admin -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -44,7 +45,33 @@
             
             <x-admin.sidebar-link :href="route('admin.attendance.index')" :active="request()->routeIs('admin.attendance.*')" icon="calendar">Attendance</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.sales.index')" :active="request()->routeIs('admin.sales.*')" icon="currency-dollar">Sales & Salary</x-admin.sidebar-link>
-            <x-admin.sidebar-link :href="route('admin.reports.index')" :active="request()->routeIs('admin.reports.*')" icon="document-chart-bar">Reports</x-admin.sidebar-link>
+            
+            <!-- Reports - Expandable -->
+            <div x-data="{ expanded: true }">
+                <button @click="expanded = !expanded" class="w-full flex items-center justify-between px-4 py-2 text-sm text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A] rounded transition-colors">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="font-medium">Reports</span>
+                    </div>
+                    <svg :class="{'rotate-180': expanded}" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                
+                <div x-show="expanded" x-collapse class="ml-4 mt-1 space-y-1">
+                    <div class="px-4 py-1 text-xs text-glaciar-gray-500 uppercase">Sales Reports</div>
+                    <a href="{{ route('admin.reports.index') }}" class="block px-4 py-2 text-sm text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A] rounded transition-colors">Sales Overview</a>
+                    
+                    <div class="px-4 py-1 mt-2 text-xs text-glaciar-gray-500 uppercase">Quality Reports</div>
+                    <a href="{{ route('admin.pest-control.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.pest-control.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Pest Control</a>
+                    <a href="{{ route('admin.training-attendance.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.training-attendance.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Training Attendance</a>
+                    <a href="{{ route('admin.tank-cleaning.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.tank-cleaning.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Tank Cleaning</a>
+                    <a href="{{ route('admin.raw-water-testing.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.raw-water-testing.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Raw Water Testing</a>
+                    <a href="{{ route('admin.raw-material-inspection.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.raw-material-inspection.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Material Inspection</a>
+                    <a href="{{ route('admin.treated-water-testing.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.treated-water-testing.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Treated Water</a>
+                    <a href="{{ route('admin.daily-cleaning.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.daily-cleaning.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">Daily Cleaning</a>
+                    <a href="{{ route('admin.uv-bulb-monitoring.index') }}" class="block px-4 py-2 text-sm {{ request()->routeIs('admin.uv-bulb-monitoring.*') ? 'text-white bg-[#1A1A1A] border-l-2 border-white' : 'text-glaciar-gray-300 hover:text-white hover:bg-[#1A1A1A]' }} rounded transition-colors">UV Bulb</a>
+                </div>
+            </div>
+
             <x-admin.sidebar-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')" icon="cog">Settings</x-admin.sidebar-link>
         </nav>
 

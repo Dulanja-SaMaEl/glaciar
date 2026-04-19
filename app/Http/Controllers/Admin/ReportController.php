@@ -10,6 +10,14 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Rep;
 use App\Models\SalesRecord;
+use App\Models\Reports\PestControlRecord;
+use App\Models\Reports\TrainingAttendance;
+use App\Models\Reports\TankCleaningRecord;
+use App\Models\Reports\RawWaterTest;
+use App\Models\Reports\RawMaterialInspection;
+use App\Models\Reports\TreatedWaterTest;
+use App\Models\Reports\DailyCleaningRecord;
+use App\Models\Reports\UvBulbRecord;
 use App\Services\SalaryCalculatorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -151,7 +159,67 @@ class ReportController extends Controller
             'repNames' => $repNames,
             'barActual' => $barActual,
             'barTarget' => $barTarget,
+
+            // Quality & Compliance Reports Stats
+            'qualityStats' => $this->getQualityStats(),
         ]);
+    }
+
+    private function getQualityStats(): array
+    {
+        $today = Carbon::today();
+        
+        $reports = [
+            'pest_control' => ['model' => PestControlRecord::class, 'date_col' => 'date'],
+            'training' => ['model' => TrainingAttendance::class, 'date_col' => 'session_date'],
+            'tank_cleaning' => ['model' => TankCleaningRecord::class, 'date_col' => 'date'],
+            'raw_water' => ['model' => RawWaterTest::class, 'date_col' => 'date'],
+            'material_inspection' => ['model' => RawMaterialInspection::class, 'date_col' => 'date'],
+            'treated_water' => ['model' => TreatedWaterTest::class, 'date_col' => 'date'],
+            'daily_cleaning' => ['model' => DailyCleaningRecord::class, 'date_col' => 'date'],
+            'uv_bulb' => ['model' => UvBulbRecord::class, 'date_col' => 'date'],
+        ];
+
+        $submittedToday = 0;
+        $todayEntries = [];
+        $lastEntries = [];
+        $thisMonthCounts = [];
+        $missingReports = [];
+
+        foreach ($reports as $key => $config) {
+            $model = $config['model'];
+            $dateCol = $config['date_col'];
+            
+            // Today's entry
+            $todayEntry = $model::whereDate($dateCol, $today)->first();
+            if ($todayEntry) {
+                $submittedToday++;
+                $todayEntries[$key] = true;
+            } else {
+                $todayEntries[$key] = false;
+                
+                // Check if there's any entry this month
+                $thisMonthCount = $model::forMonth(now()->year, now()->month)->count();
+                if ($thisMonthCount === 0) {
+                    $missingReports[] = ucwords(str_replace('_', ' ', $key));
+                }
+            }
+
+            // Last entry
+            $lastEntry = $model::orderBy($dateCol, 'desc')->first();
+            $lastEntries[$key] = $lastEntry ? $lastEntry->$dateCol : null;
+
+            // This month count
+            $thisMonthCounts[$key] = $model::forMonth(now()->year, now()->month)->count();
+        }
+
+        return [
+            'submitted_today' => $submittedToday,
+            'today_entries' => $todayEntries,
+            'last_entries' => $lastEntries,
+            'this_month_counts' => $thisMonthCounts,
+            'missing_reports' => $missingReports,
+        ];
     }
 }
 
