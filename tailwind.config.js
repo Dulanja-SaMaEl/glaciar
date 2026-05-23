@@ -1,3 +1,7 @@
+import colors from 'tailwindcss/colors';
+// Silence deprecated color rename warnings
+const { lightBlue, warmGray, trueGray, coolGray, blueGray, ...safeColors } = colors;
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -12,6 +16,7 @@ export default {
                 sans: ['Inter', 'sans-serif'],
             },
             colors: {
+                ...colors,
                 glaciar: {
                     black: '#000000',
                     white: '#FFFFFF',

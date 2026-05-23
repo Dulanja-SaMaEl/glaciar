@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RepController;
+use App\Http\Controllers\RepTargetController;
+use App\Http\Controllers\DeliveryRouteController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -32,13 +34,20 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    Route::resource('reps', RepController::class)->only(['index', 'show']);
+    Route::resource('reps', RepController::class);
+    Route::post('reps/{rep}/targets', [RepTargetController::class, 'storeOrUpdate'])->name('reps.targets.store');
+    
+    Route::resource('delivery-routes', DeliveryRouteController::class);
+    Route::post('delivery-routes/{delivery_route}/sync-customers', [DeliveryRouteController::class, 'syncCustomers'])->name('delivery-routes.sync-customers');
+    Route::post('delivery-routes/{delivery_route}/sync-reps', [DeliveryRouteController::class, 'syncReps'])->name('delivery-routes.sync-reps');
+
     Route::get('/map', [LiveMapController::class, 'index'])->name('map');
     
     Route::resource('orders', OrderController::class)->only(['index', 'show', 'update']);
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
     
-    Route::resource('customers', CustomerController::class)->only(['index', 'show']);
+    Route::resource('customers', CustomerController::class)->only(['index', 'show', 'edit', 'update']);
+    Route::post('customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('customers.toggle-status');
     
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');

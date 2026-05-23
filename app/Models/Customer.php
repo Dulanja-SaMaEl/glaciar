@@ -36,4 +36,9 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Complaint::class);
     }
+
+    public function deliveryRoutes()
+    {
+        return $this->belongsToMany(DeliveryRoute::class);
+    }
 }

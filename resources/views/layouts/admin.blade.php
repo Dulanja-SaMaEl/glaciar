@@ -33,6 +33,7 @@
         <nav class="flex-1 overflow-y-auto py-4 space-y-1">
             <x-admin.sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" icon="chart-bar">Dashboard</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.reps.index')" :active="request()->routeIs('admin.reps.*')" icon="user-group">Sales Reps</x-admin.sidebar-link>
+            <x-admin.sidebar-link :href="route('admin.delivery-routes.index')" :active="request()->routeIs('admin.delivery-routes.*')" icon="truck">Delivery Routes</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.map')" :active="request()->routeIs('admin.map')" icon="map">Live Map</x-admin.sidebar-link>
             
             <x-admin.sidebar-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')" icon="shopping-bag" :badge="\App\Models\Order::where('status', 'pending')->count()">Orders</x-admin.sidebar-link>
