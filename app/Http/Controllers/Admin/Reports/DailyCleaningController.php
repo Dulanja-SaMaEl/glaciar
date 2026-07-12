@@ -11,23 +11,42 @@ use Illuminate\Support\Facades\Response;
 
 class DailyCleaningController extends Controller
 {
+    private function buildQuery(Request $request)
+    {
+        $query = DailyCleaningRecord::query();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('month') && $request->filled('year')) {
+            $query->forMonth($request->year, $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('shift', 'like', "%{$search}%")
+                  ->orWhere('overall_status', 'like', "%{$search}%")
+                  ->orWhere('checked_by', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query;
+    }
+
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = DailyCleaningRecord::forMonth($year, $month)->orderBy('date', 'desc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'desc')->paginate(15)->withQueryString();
         
         $stats = [
-            'total' => $records->count(),
-            'complete' => $records->filter(fn($r) => $r->overall_status === 'Complete')->count(),
-            'incomplete' => $records->filter(fn($r) => str_contains($r->overall_status, 'Incomplete'))->count(),
+            'total' => DailyCleaningRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->count(),
+            'complete' => DailyCleaningRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->get()->filter(fn($r) => $r->overall_status === 'Complete')->count(),
+            'incomplete' => DailyCleaningRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->get()->filter(fn($r) => str_contains($r->overall_status, 'Incomplete'))->count(),
         ];
 
         $lastEntry = DailyCleaningRecord::orderBy('date', 'desc')->first();
         $thisMonth = DailyCleaningRecord::forMonth(now()->year, now()->month)->count();
 
-        return view('admin.reports.daily-cleaning.index', compact('records', 'stats', 'year', 'month', 'lastEntry', 'thisMonth'));
+        return view('admin.reports.daily-cleaning.index', compact('records', 'stats', 'lastEntry', 'thisMonth'));
     }
 
     public function store(StoreDailyCleaningRequest $request)
@@ -54,27 +73,23 @@ class DailyCleaningController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = DailyCleaningRecord::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
         
         $pdf = Pdf::loadView('admin.reports.daily-cleaning.pdf', [
-            'records' => $records, 'year' => $year, 'month' => $month,
-            'monthLabel' => \Carbon\Carbon::create($year, $month)->format('F Y'),
+            'records' => $records, 'year' => $request->year ?? now()->year, 'month' => $request->month ?? now()->month,
+            'monthLabel' => \Carbon\Carbon::create($request->year ?? now()->year, $request->month ?? now()->month)->format('F Y'),
         ]);
-        return $pdf->download("daily-cleaning-{$month}-{$year}.pdf");
+        return $pdf->download("daily-cleaning-export.pdf");
     }
 
     public function exportCsv(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = DailyCleaningRecord::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
 
         $csv = "Date,Shift,Status,Checked By\n";
         foreach ($records as $r) {
             $csv .= "{$r->date->format('Y-m-d')},{$r->shift},{$r->overall_status},{$r->checked_by}\n";
         }
-        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=daily-cleaning-{$month}-{$year}.csv"]);
+        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=daily-cleaning-export.csv"]);
     }
 }

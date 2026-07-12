@@ -11,19 +11,38 @@ use Illuminate\Support\Facades\Response;
 
 class UvBulbMonitoringController extends Controller
 {
+    private function buildQuery(Request $request)
+    {
+        $query = UvBulbRecord::query();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('month') && $request->filled('year')) {
+            $query->forMonth($request->year, $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('bulb_id', 'like', "%{$search}%")
+                  ->orWhere('bulb_location', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%")
+                  ->orWhere('checked_by', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query;
+    }
+
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = UvBulbRecord::forMonth($year, $month)->orderBy('date', 'desc')->get();
-        
+        $records = $this->buildQuery($request)->orderBy('date', 'desc')->paginate(15)->withQueryString();
         $bulbSummary = UvBulbRecord::allBulbsSummary();
 
         $lastEntry = UvBulbRecord::orderBy('date', 'desc')->first();
         $thisMonth = UvBulbRecord::forMonth(now()->year, now()->month)->count();
 
-        return view('admin.reports.uv-bulb-monitoring.index', compact('records', 'bulbSummary', 'year', 'month', 'lastEntry', 'thisMonth'));
+        return view('admin.reports.uv-bulb-monitoring.index', compact('records', 'bulbSummary', 'lastEntry', 'thisMonth'));
     }
 
     public function store(StoreUvBulbRequest $request)
@@ -94,28 +113,24 @@ class UvBulbMonitoringController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = UvBulbRecord::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
         $bulbSummary = UvBulbRecord::allBulbsSummary();
         
         $pdf = Pdf::loadView('admin.reports.uv-bulb-monitoring.pdf', [
-            'records' => $records, 'bulbSummary' => $bulbSummary, 'year' => $year, 'month' => $month,
-            'monthLabel' => \Carbon\Carbon::create($year, $month)->format('F Y'),
+            'records' => $records, 'bulbSummary' => $bulbSummary, 'year' => $request->year ?? now()->year, 'month' => $request->month ?? now()->month,
+            'monthLabel' => \Carbon\Carbon::create($request->year ?? now()->year, $request->month ?? now()->month)->format('F Y'),
         ]);
-        return $pdf->download("uv-bulb-monitoring-{$month}-{$year}.pdf");
+        return $pdf->download("uv-bulb-monitoring-export.pdf");
     }
 
     public function exportCsv(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = UvBulbRecord::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
 
         $csv = "Date,Bulb ID,Location,Start,Finish,Hours Run,Cumulative,Remaining %,Status,Checked By\n";
         foreach ($records as $r) {
             $csv .= "{$r->date->format('Y-m-d')},{$r->bulb_id},{$r->bulb_location},{$r->start_time},{$r->finish_time},{$r->running_hours},{$r->cumulative_hours},{$r->remaining_percentage},{$r->status},{$r->checked_by}\n";
         }
-        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=uv-bulb-{$month}-{$year}.csv"]);
+        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=uv-bulb-export.csv"]);
     }
 }

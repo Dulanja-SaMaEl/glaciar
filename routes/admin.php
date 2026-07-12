@@ -57,7 +57,8 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
     
     Route::resource('complaints', ComplaintController::class)->only(['index', 'show', 'update']);
     
-    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('attendance/export/csv', [AttendanceController::class, 'exportCsv'])->name('attendance.export.csv');
+    Route::resource('attendance', AttendanceController::class);
     
     // Sales & Salary
     Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');

@@ -2,20 +2,42 @@
 @section('header', 'Raw Material Inspection')
 @section('content')
     <x-admin.reports.report-page-header title="Raw Material Inspection" description="Supplier material inspection" routeKey="raw-material-inspection" />
-    <div class="mt-6 bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table class="min-w-full divide-y divide-glaciar-gray-100">
-            <thead class="bg-glaciar-black"><tr><th class="px-4 py-3 text-left text-xs font-medium text-white">Date</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Supplier</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Material</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Qty</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Result</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Actions</th></tr></thead>
-            <tbody class="bg-white divide-y">
-                @forelse($records as $i => $r)
-                <tr class="{{ $i % 2 === 0 ? 'bg-white' : 'bg-[#F9F9F9]' }}">
-                    <td class="px-4 py-3 text-sm">{{ $r->date->format('d M Y') }}</td><td class="px-4 py-3 text-sm">{{ $r->supplier }}</td>
-                    <td class="px-4 py-3 text-sm">{{ $r->material_type }}</td><td class="px-4 py-3 text-sm">{{ $r->quantity_received }} {{ $r->unit }}</td>
-                    <td class="px-4 py-3 text-sm">@if($r->overall_result==='Accepted')<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Accepted</span>@elseif($r->overall_result==='Rejected')<span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">Rejected</span>@else<span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800">With Condition</span>@endif</td>
-                    <td class="px-4 py-3 text-sm"><button onclick="deleteRecord({{ $r->id }})" class="text-red-600">Delete</button></td>
+    <div class="mt-6">
+        <x-admin.data-table :columns="['Date', 'Supplier', 'Material', 'Qty', 'Result', 'Actions']" :items="$records">
+            @forelse($records as $index => $r)
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-glaciar-black">{{ $r->date->format('d M Y') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-glaciar-black">{{ $r->supplier }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $r->material_type }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $r->quantity_received }} {{ $r->unit }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if($r->overall_result === 'Accepted')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Accepted</span>
+                        @elseif($r->overall_result === 'Rejected')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Rejected</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">With Condition</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <button onclick="deleteRecord({{ $r->id }})" class="text-red-500 hover:text-red-700 font-semibold transition-colors">Delete</button>
+                    </td>
                 </tr>
-                @empty<tr><td colspan="6" class="px-6 py-8 text-center">No records</td></tr>@endforelse
-            </tbody>
-        </table>
+            @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center bg-white">
+                        <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-glaciar-gray-500 font-medium">No records found for this period</p>
+                    </td>
+                </tr>
+            @endforelse
+        </x-admin.data-table>
+        
+        <div class="mt-4">
+            {{ $records->links() }}
+        </div>
     </div>
     <x-admin.reports.report-entry-modal modalId="entry-modal-material" title="Material Inspection Entry">
         <form id="entry-modal-material-form" @submit.prevent="submitForm">

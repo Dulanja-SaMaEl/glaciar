@@ -11,16 +11,35 @@ use Illuminate\Support\Facades\Response;
 
 class RawMaterialInspectionController extends Controller
 {
+    private function buildQuery(Request $request)
+    {
+        $query = RawMaterialInspection::query();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('month') && $request->filled('year')) {
+            $query->forMonth($request->year, $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('supplier', 'like', "%{$search}%")
+                  ->orWhere('material_type', 'like', "%{$search}%")
+                  ->orWhere('checked_by', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query;
+    }
+
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = RawMaterialInspection::forMonth($year, $month)->orderBy('date', 'desc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'desc')->paginate(15)->withQueryString();
         $lastEntry = RawMaterialInspection::orderBy('date', 'desc')->first();
         $thisMonth = RawMaterialInspection::forMonth(now()->year, now()->month)->count();
 
-        return view('admin.reports.raw-material-inspection.index', compact('records', 'year', 'month', 'lastEntry', 'thisMonth'));
+        return view('admin.reports.raw-material-inspection.index', compact('records', 'lastEntry', 'thisMonth'));
     }
 
     public function store(StoreRawMaterialInspectionRequest $request)
@@ -47,27 +66,23 @@ class RawMaterialInspectionController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = RawMaterialInspection::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
         
         $pdf = Pdf::loadView('admin.reports.raw-material-inspection.pdf', [
-            'records' => $records, 'year' => $year, 'month' => $month,
-            'monthLabel' => \Carbon\Carbon::create($year, $month)->format('F Y'),
+            'records' => $records, 'year' => $request->year ?? now()->year, 'month' => $request->month ?? now()->month,
+            'monthLabel' => \Carbon\Carbon::create($request->year ?? now()->year, $request->month ?? now()->month)->format('F Y'),
         ]);
-        return $pdf->download("raw-material-inspection-{$month}-{$year}.pdf");
+        return $pdf->download("raw-material-inspection-export.pdf");
     }
 
     public function exportCsv(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-        $records = RawMaterialInspection::forMonth($year, $month)->orderBy('date', 'asc')->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
 
         $csv = "Date,Supplier,Material,Qty,Unit,Clearness,Odor,Damages,Particles,Result,Checked By\n";
         foreach ($records as $r) {
             $csv .= "{$r->date->format('Y-m-d')},{$r->supplier},{$r->material_type},{$r->quantity_received},{$r->unit},{$r->clearness},{$r->odor},{$r->without_damages},{$r->free_from_particles},{$r->overall_result},{$r->checked_by}\n";
         }
-        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=raw-material-inspection-{$month}-{$year}.csv"]);
+        return Response::make($csv, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename=raw-material-inspection-export.csv"]);
     }
 }

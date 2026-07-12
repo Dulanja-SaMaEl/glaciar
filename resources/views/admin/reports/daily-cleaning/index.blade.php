@@ -2,20 +2,39 @@
 @section('header', 'Daily Cleaning')
 @section('content')
     <x-admin.reports.report-page-header title="Daily Cleaning Checklist" description="Factory area hygiene check" routeKey="daily-cleaning" />
-    <div class="mt-6 bg-white rounded-xl shadow-sm border overflow-hidden">
-        <table class="min-w-full divide-y divide-glaciar-gray-100">
-            <thead class="bg-glaciar-black"><tr><th class="px-4 py-3 text-left text-xs font-medium text-white">Date</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Shift</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Status</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Checked By</th><th class="px-4 py-3 text-left text-xs font-medium text-white">Actions</th></tr></thead>
-            <tbody class="bg-white divide-y">
-                @forelse($records as $i => $r)
-                <tr class="{{ $i % 2 === 0 ? 'bg-white' : 'bg-[#F9F9F9]' }}">
-                    <td class="px-4 py-3 text-sm">{{ $r->date->format('d M Y') }}</td><td class="px-4 py-3 text-sm">{{ $r->shift }}</td>
-                    <td class="px-4 py-3 text-sm">@if($r->overall_status==='Complete')<span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Complete</span>@else<span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-800">{{ $r->overall_status }}</span>@endif</td>
-                    <td class="px-4 py-3 text-sm">{{ $r->checked_by }}</td>
-                    <td class="px-4 py-3 text-sm"><button onclick="deleteRecord({{ $r->id }})" class="text-red-600">Delete</button></td>
+    <div class="mt-6">
+        <x-admin.data-table :columns="['Date', 'Shift', 'Status', 'Checked By', 'Actions']" :items="$records">
+            @forelse($records as $index => $r)
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-glaciar-black">{{ $r->date->format('d M Y') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-glaciar-black">{{ $r->shift }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if($r->overall_status === 'Complete')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Complete</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">{{ $r->overall_status }}</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $r->checked_by }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <button onclick="deleteRecord({{ $r->id }})" class="text-red-500 hover:text-red-700 font-semibold transition-colors">Delete</button>
+                    </td>
                 </tr>
-                @empty<tr><td colspan="5" class="px-6 py-8 text-center">No records</td></tr>@endforelse
-            </tbody>
-        </table>
+            @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center bg-white">
+                        <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-glaciar-gray-500 font-medium">No records found for this period</p>
+                    </td>
+                </tr>
+            @endforelse
+        </x-admin.data-table>
+        
+        <div class="mt-4">
+            {{ $records->links() }}
+        </div>
     </div>
     <x-admin.reports.report-entry-modal modalId="entry-modal-cleaning" title="Daily Cleaning Entry">
         <form id="entry-modal-cleaning-form" @submit.prevent="submitForm">

@@ -9,42 +9,40 @@
         routeKey="training-attendance"
     />
 
-    <div class="mt-6 bg-white rounded-xl shadow-sm border border-glaciar-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-glaciar-gray-100">
-                <thead class="bg-glaciar-black">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Date</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Session Title</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Trainer</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Duration</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Attendees</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-glaciar-gray-100">
-                    @forelse($records as $index => $record)
-                        <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-[#F9F9F9]' }}">
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-black">{{ $record->session_date->format('d M Y') }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-glaciar-black">{{ $record->session_title }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->trainer_name }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->session_duration }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->entries->count() }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <button onclick="editRecord({{ $record->id }})" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                                <button onclick="deleteRecord({{ $record->id }})" class="text-red-600 hover:text-red-900">Delete</button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"></path></svg>
-                                <p class="mt-2 text-sm text-glaciar-gray-500">No records found</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="mt-6">
+        <x-admin.data-table :columns="['Date', 'Session Title', 'Trainer', 'Duration', 'Attendees', 'Actions']" :items="$records">
+            @forelse($records as $index => $record)
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-glaciar-black">{{ $record->session_date->format('d M Y') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-glaciar-black">{{ $record->session_title }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->trainer_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->session_duration }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                            {{ $record->entries->count() }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex items-center gap-3">
+                            <button onclick="editRecord({{ $record->id }})" class="text-glaciar-accent hover:text-glaciar-accent-dark font-semibold transition-colors">Edit</button>
+                            <button onclick="deleteRecord({{ $record->id }})" class="text-red-500 hover:text-red-700 font-semibold transition-colors">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center bg-white">
+                        <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-glaciar-gray-500 font-medium">No records found for this period</p>
+                    </td>
+                </tr>
+            @endforelse
+        </x-admin.data-table>
+        
+        <div class="mt-4">
+            {{ $records->links() }}
         </div>
     </div>
 

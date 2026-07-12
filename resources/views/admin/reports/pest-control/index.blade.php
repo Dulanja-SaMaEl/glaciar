@@ -9,88 +9,72 @@
         routeKey="pest-control"
     />
 
-    <div class="mt-6 bg-white rounded-xl shadow-sm border border-glaciar-gray-100 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-glaciar-gray-100">
-                <thead class="bg-glaciar-black">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Date</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">TW</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">STA</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">FR</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">FlR</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">RMS</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">FPS</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">19L</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">OA</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">FE</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">LR</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Checked By</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-glaciar-gray-100">
-                    @forelse($records as $index => $record)
-                        <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-[#F9F9F9]' }}">
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-black">{{ $record->date->format('d M Y') }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->tube_well === 'Clear') text-green-600 font-semibold @elseif($record->tube_well === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->tube_well }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->storage_tank_area === 'Clear') text-green-600 font-semibold @elseif($record->storage_tank_area === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->storage_tank_area }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->filter_room === 'Clear') text-green-600 font-semibold @elseif($record->filter_room === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->filter_room }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->filling_room === 'Clear') text-green-600 font-semibold @elseif($record->filling_room === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->filling_room }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->raw_material_store === 'Clear') text-green-600 font-semibold @elseif($record->raw_material_store === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->raw_material_store }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->finish_product_store === 'Clear') text-green-600 font-semibold @elseif($record->finish_product_store === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->finish_product_store }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->washing_area_19l === 'Clear') text-green-600 font-semibold @elseif($record->washing_area_19l === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->washing_area_19l }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->office_area === 'Clear') text-green-600 font-semibold @elseif($record->office_area === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->office_area }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->factory_entrance === 'Clear') text-green-600 font-semibold @elseif($record->factory_entrance === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->factory_entrance }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <span class="@if($record->lunch_room === 'Clear') text-green-600 font-semibold @elseif($record->lunch_room === 'Issue') text-red-600 font-semibold @else text-gray-400 @endif">{{ $record->lunch_room }}</span>
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                @if(str_contains($record->overall_status, 'Issues'))
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Issues Found</span>
-                                @elseif($record->overall_status === 'Partial')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Partial</span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">All Clear</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->checked_by }}</td>
-                            <td class="px-4 py-3 whitespace-nowrap text-sm">
-                                <button onclick="editRecord({{ $record->id }})" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                                <button onclick="deleteRecord({{ $record->id }})" class="text-red-600 hover:text-red-900">Delete</button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="14" class="px-6 py-12 text-center">
-                                <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <p class="mt-2 text-sm text-glaciar-gray-500">No records found</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="mt-6">
+        <x-admin.data-table :columns="['Date', 'TW', 'STA', 'FR', 'FlR', 'RMS', 'FPS', '19L', 'OA', 'FE', 'LR', 'Status', 'Checked By', 'Actions']" :items="$records">
+            @forelse($records as $index => $record)
+                <tr class="table-row-hover transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-glaciar-black">{{ $record->date->format('d M Y') }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->tube_well === 'Clear') text-emerald-600 font-semibold @elseif($record->tube_well === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->tube_well }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->storage_tank_area === 'Clear') text-emerald-600 font-semibold @elseif($record->storage_tank_area === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->storage_tank_area }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->filter_room === 'Clear') text-emerald-600 font-semibold @elseif($record->filter_room === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->filter_room }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->filling_room === 'Clear') text-emerald-600 font-semibold @elseif($record->filling_room === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->filling_room }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->raw_material_store === 'Clear') text-emerald-600 font-semibold @elseif($record->raw_material_store === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->raw_material_store }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->finish_product_store === 'Clear') text-emerald-600 font-semibold @elseif($record->finish_product_store === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->finish_product_store }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->washing_area_19l === 'Clear') text-emerald-600 font-semibold @elseif($record->washing_area_19l === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->washing_area_19l }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->office_area === 'Clear') text-emerald-600 font-semibold @elseif($record->office_area === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->office_area }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->factory_entrance === 'Clear') text-emerald-600 font-semibold @elseif($record->factory_entrance === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->factory_entrance }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="@if($record->lunch_room === 'Clear') text-emerald-600 font-semibold @elseif($record->lunch_room === 'Issue') text-red-600 font-semibold @else text-glaciar-gray-400 @endif">{{ $record->lunch_room }}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if(str_contains($record->overall_status, 'Issues'))
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Issues Found</span>
+                        @elseif($record->overall_status === 'Partial')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Partial</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">All Clear</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-glaciar-gray-600">{{ $record->checked_by }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="flex items-center gap-3">
+                            <button onclick="editRecord({{ $record->id }})" class="text-glaciar-accent hover:text-glaciar-accent-dark font-semibold transition-colors">Edit</button>
+                            <button onclick="deleteRecord({{ $record->id }})" class="text-red-500 hover:text-red-700 font-semibold transition-colors">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="14" class="px-6 py-12 text-center bg-white">
+                        <svg class="mx-auto h-12 w-12 text-glaciar-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="mt-2 text-sm text-glaciar-gray-500 font-medium">No records found for this period</p>
+                    </td>
+                </tr>
+            @endforelse
+        </x-admin.data-table>
+        
+        <div class="mt-4">
+            {{ $records->links() }}
         </div>
     </div>
 

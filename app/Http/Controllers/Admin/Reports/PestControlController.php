@@ -8,28 +8,45 @@ use App\Models\Reports\PestControlRecord;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 
 class PestControlController extends Controller
 {
+    private function buildQuery(Request $request)
+    {
+        $query = PestControlRecord::query();
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('month') && $request->filled('year')) {
+            $query->forMonth($request->year, $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('checked_by', 'like', "%{$search}%")
+                  ->orWhere('comments', 'like', "%{$search}%");
+            });
+        }
+        
+        return $query;
+    }
+
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = PestControlRecord::forMonth($year, $month)
-            ->orderBy('date', 'desc')
-            ->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'desc')->paginate(15)->withQueryString();
 
         $stats = [
-            'total' => $records->count(),
-            'issues' => $records->filter(fn($r) => str_contains($r->overall_status, 'Issues'))->count(),
-            'clear' => $records->filter(fn($r) => $r->overall_status === 'All Clear')->count(),
+            'total' => PestControlRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->count(),
+            'issues' => PestControlRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->get()->filter(fn($r) => str_contains($r->overall_status, 'Issues'))->count(),
+            'clear' => PestControlRecord::whereBetween('date', [now()->startOfMonth(), now()->endOfMonth()])->get()->filter(fn($r) => $r->overall_status === 'All Clear')->count(),
         ];
 
         $lastEntry = PestControlRecord::orderBy('date', 'desc')->first();
         $thisMonth = PestControlRecord::forMonth(now()->year, now()->month)->count();
 
-        return view('admin.reports.pest-control.index', compact('records', 'stats', 'year', 'month', 'lastEntry', 'thisMonth'));
+        return view('admin.reports.pest-control.index', compact('records', 'stats', 'lastEntry', 'thisMonth'));
     }
 
     public function store(StorePestControlRequest $request)
@@ -66,45 +83,34 @@ class PestControlController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = PestControlRecord::forMonth($year, $month)
-            ->orderBy('date', 'asc')
-            ->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
 
         $stats = [
             'total' => $records->count(),
             'issues' => $records->filter(fn($r) => str_contains($r->overall_status, 'Issues'))->count(),
+            'clear' => $records->filter(fn($r) => $r->overall_status === 'All Clear')->count(),
         ];
 
-        $areaCounts = [];
         $areas = ['tube_well', 'storage_tank_area', 'filter_room', 'filling_room', 'raw_material_store', 'finish_product_store', 'washing_area_19l', 'office_area', 'factory_entrance', 'lunch_room'];
-        foreach ($areas as $area) {
-            $areaCounts[$area] = $records->filter(fn($r) => $r->$area === 'Issue')->count();
-        }
-        $mostProblematic = !empty($areaCounts) ? array_keys($areaCounts, max($areaCounts))[0] : null;
+        $mostProblematic = collect($areas)->mapWithKeys(function($area) use ($records) {
+            return [str_replace('_', ' ', Str::title($area)) => $records->filter(fn($r) => $r->$area === 'Not Done')->count()];
+        })->sortDesc()->take(3)->toArray();
 
         $pdf = Pdf::loadView('admin.reports.pest-control.pdf', [
             'records' => $records,
             'stats' => $stats,
-            'year' => $year,
-            'month' => $month,
-            'monthLabel' => \Carbon\Carbon::create($year, $month)->format('F Y'),
+            'year' => $request->year ?? now()->year,
+            'month' => $request->month ?? now()->month,
+            'monthLabel' => \Carbon\Carbon::create($request->year ?? now()->year, $request->month ?? now()->month)->format('F Y'),
             'mostProblematic' => $mostProblematic,
         ]);
 
-        return $pdf->download("pest-control-{$month}-{$year}.pdf");
+        return $pdf->download("pest-control-export.pdf");
     }
 
     public function exportCsv(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = PestControlRecord::forMonth($year, $month)
-            ->orderBy('date', 'asc')
-            ->get();
+        $records = $this->buildQuery($request)->orderBy('date', 'asc')->get();
 
         $headers = ['Date', 'Tube Well', 'Storage Tank', 'Filter Room', 'Filling Room', 'Raw Material Store', 'Finish Product', '19L Washing', 'Office', 'Factory Entrance', 'Lunch Room', 'Status', 'Checked By', 'Comments'];
 
@@ -134,7 +140,7 @@ class PestControlController extends Controller
 
         return Response::make($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=pest-control-{$month}-{$year}.csv",
+            'Content-Disposition' => "attachment; filename=pest-control-export.csv",
         ]);
     }
 }

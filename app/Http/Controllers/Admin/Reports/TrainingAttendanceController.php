@@ -12,20 +12,38 @@ use Illuminate\Support\Facades\Response;
 
 class TrainingAttendanceController extends Controller
 {
+    private function buildQuery(Request $request)
+    {
+        $query = TrainingAttendance::with('entries');
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('session_date', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('month') && $request->filled('year')) {
+            $query->forMonth($request->year, $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('session_title', 'like', "%{$search}%")
+                  ->orWhere('trainer_name', 'like', "%{$search}%")
+                  ->orWhereHas('entries', function($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%")
+                         ->orWhere('designation', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        return $query;
+    }
+
     public function index(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = TrainingAttendance::with('entries')
-            ->forMonth($year, $month)
-            ->orderBy('session_date', 'desc')
-            ->get();
-
+        $records = $this->buildQuery($request)->orderBy('session_date', 'desc')->paginate(15)->withQueryString();
         $lastEntry = TrainingAttendance::orderBy('session_date', 'desc')->first();
         $thisMonth = TrainingAttendance::forMonth(now()->year, now()->month)->count();
 
-        return view('admin.reports.training-attendance.index', compact('records', 'year', 'month', 'lastEntry', 'thisMonth'));
+        return view('admin.reports.training-attendance.index', compact('records', 'lastEntry', 'thisMonth'));
     }
 
     public function store(StoreTrainingAttendanceRequest $request)
@@ -84,34 +102,21 @@ class TrainingAttendanceController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = TrainingAttendance::with('entries')
-            ->forMonth($year, $month)
-            ->orderBy('session_date', 'asc')
-            ->get();
+        $records = $this->buildQuery($request)->orderBy('session_date', 'asc')->get();
 
         $pdf = Pdf::loadView('admin.reports.training-attendance.pdf', [
             'records' => $records,
-            'year' => $year,
-            'month' => $month,
-            'monthLabel' => \Carbon\Carbon::create($year, $month)->format('F Y'),
+            'year' => $request->year ?? now()->year,
+            'month' => $request->month ?? now()->month,
+            'monthLabel' => \Carbon\Carbon::create($request->year ?? now()->year, $request->month ?? now()->month)->format('F Y'),
         ]);
 
-        return $pdf->download("training-attendance-{$month}-{$year}.pdf");
+        return $pdf->download("training-attendance-export.pdf");
     }
 
     public function exportCsv(Request $request)
     {
-        $year = $request->get('year', now()->year);
-        $month = $request->get('month', now()->month);
-
-        $records = TrainingAttendance::with('entries')
-            ->forMonth($year, $month)
-            ->orderBy('session_date', 'asc')
-            ->get();
-
+        $records = $this->buildQuery($request)->orderBy('session_date', 'asc')->get();
         $headers = ['Date', 'Session Title', 'Trainer', 'Duration', 'Attendee Name', 'Designation'];
 
         $rows = [];
@@ -135,7 +140,7 @@ class TrainingAttendanceController extends Controller
 
         return Response::make($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=training-attendance-{$month}-{$year}.csv",
+            'Content-Disposition' => "attachment; filename=training-attendance-export.csv",
         ]);
     }
 }
