@@ -95,74 +95,85 @@
                 </div>
             </div>
 
-            <!-- Salary Breakdown Card -->
+            <!-- Detailed Salary Breakdown Card -->
             <div class="bg-white rounded-xl shadow-sm border border-glaciar-gray-100 p-6">
-                <h3 class="text-lg font-bold text-glaciar-black mb-4">Salary Breakdown</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-glaciar-black">Detailed Salary Breakdown</h3>
+                    <a href="{{ route('admin.payroll.generate', ['repId' => $rep->id, 'year' => $year, 'month' => $month]) }}" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">
+                        Generate Paysheet
+                    </a>
+                </div>
 
                 @php
                     $basic = (float) ($monthly['basic_salary'] ?? 0);
                     $allow = (float) ($monthly['allowance'] ?? 0);
                     $break = $monthly['commission_breakdown'] ?? [];
-
-                    $tier1Cap = (float) config('salary.tier1_cap');
-                    $tier1Rate = (float) config('salary.tier1_rate');
-                    $tier2Rate = (float) config('salary.tier2_rate');
-
-                    $tier1Sales = (float) ($break['tier1_sales'] ?? 0);
-                    $tier1Comm = (float) ($break['tier1_commission'] ?? 0);
-                    $tier2Sales = (float) ($break['tier2_sales'] ?? 0);
-                    $tier2Comm = (float) ($break['tier2_commission'] ?? 0);
-
-                    $bonusEarned = !empty($monthly['bonus_earned']);
+                    $comm = (float) ($monthly['commission'] ?? 0);
                     $bonus = (float) ($monthly['bonus'] ?? 0);
+                    $totEarn = (float) ($monthly['total_earnings'] ?? 0);
+
+                    $absentDed = (float) ($monthly['absent_deduction'] ?? 0);
+                    $lateDed = (float) ($monthly['late_deduction'] ?? 0);
+                    $epfDed = (float) ($monthly['epf_deduction'] ?? 0);
+                    $totDed = (float) ($monthly['total_deductions'] ?? 0);
+                    
+                    $net = (float) ($monthly['net_salary'] ?? 0);
                 @endphp
 
-                <div class="border border-glaciar-gray-200 rounded-lg p-4 font-mono text-xs text-glaciar-black bg-glaciar-gray-50/40">
-                    <div class="grid grid-cols-2 gap-3 mb-3">
-                        <div class="text-glaciar-gray-600">Basic Salary</div>
-                        <div class="text-right font-semibold">LKR {{ number_format($basic, 0) }}</div>
-                        <div class="text-glaciar-gray-600">Allowance</div>
-                        <div class="text-right font-semibold">LKR {{ number_format($allow, 0) }}</div>
-                    </div>
-
-                    <div class="border-t border-glaciar-gray-200 my-3"></div>
-
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-glaciar-gray-600">
-                                First LKR {{ number_format($tier1Cap, 0) }} @ {{ number_format($tier1Rate * 100, 0) }}%
-                            </span>
-                            <span class="font-semibold">= LKR {{ number_format($tier1Comm, 0) }}</span>
+                <div class="font-mono text-sm text-glaciar-black bg-glaciar-gray-50/40 border border-glaciar-gray-200 rounded-lg p-4 space-y-4">
+                    
+                    <!-- Earnings Section -->
+                    <div>
+                        <div class="font-bold text-green-700 uppercase tracking-wider text-xs border-b border-gray-300 pb-1 mb-2">Earnings</div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Basic Salary</span>
+                            <span>LKR {{ number_format($basic, 2) }}</span>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-glaciar-gray-600">
-                                Next LKR {{ number_format($tier2Sales, 0) }} @ {{ number_format($tier2Rate * 100, 0) }}%
-                            </span>
-                            <span class="font-semibold">= LKR {{ number_format($tier2Comm, 0) }}</span>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Fixed Allowance</span>
+                            <span>LKR {{ number_format($allow, 2) }}</span>
                         </div>
-                        <div class="flex items-center justify-between font-semibold">
-                            <span>Total Commission</span>
-                            <span>LKR {{ number_format($monthly['commission'] ?? 0, 0) }}</span>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Sales Commission</span>
+                            <span>LKR {{ number_format($comm, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Performance Bonus</span>
+                            <span>LKR {{ number_format($bonus, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-t border-dashed border-gray-300 font-bold">
+                            <span>Total Earnings</span>
+                            <span class="text-green-700">LKR {{ number_format($totEarn, 2) }}</span>
                         </div>
                     </div>
 
-                    <div class="border-t border-glaciar-gray-200 my-3"></div>
-
-                    <div class="flex items-center justify-between">
-                        <span class="text-glaciar-gray-600">Target Bonus</span>
-                        @if($bonusEarned)
-                            <span class="font-semibold">LKR {{ number_format($bonus, 0) }} &nbsp;<span class="text-green-700">&#10003;</span></span>
-                        @else
-                            <span class="font-semibold">LKR 0 &nbsp;<span class="text-red-700">&#10007;</span></span>
-                        @endif
+                    <!-- Deductions Section -->
+                    <div>
+                        <div class="font-bold text-red-700 uppercase tracking-wider text-xs border-b border-gray-300 pb-1 mb-2">Deductions</div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Absent Days ({{ $monthly['absent_days'] ?? 0 }})</span>
+                            <span>LKR {{ number_format($absentDed, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">Late Arrivals ({{ $monthly['late_days'] ?? 0 }})</span>
+                            <span>LKR {{ number_format($lateDed, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-1">
+                            <span class="text-gray-600">EPF/ETF (Estimated)</span>
+                            <span>LKR {{ number_format($epfDed, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-t border-dashed border-gray-300 font-bold">
+                            <span>Total Deductions</span>
+                            <span class="text-red-700">LKR {{ number_format($totDed, 2) }}</span>
+                        </div>
                     </div>
 
-                    <div class="border-t border-glaciar-gray-200 my-3"></div>
-
-                    <div class="flex items-center justify-between text-base font-bold">
-                        <span>Total Salary</span>
-                        <span>LKR {{ number_format($monthly['total_salary'] ?? 0, 0) }}</span>
+                    <!-- Net Salary -->
+                    <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg flex justify-between items-center text-lg font-extrabold mt-2">
+                        <span>NET SALARY</span>
+                        <span class="text-blue-700">LKR {{ number_format($net, 2) }}</span>
                     </div>
+
                 </div>
             </div>
 

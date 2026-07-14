@@ -34,6 +34,9 @@
 
         <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1.5 custom-scrollbar">
             <x-admin.sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" icon="chart-bar">Dashboard</x-admin.sidebar-link>
+            @if(Auth::user()?->role === 'super_admin')
+            <x-admin.sidebar-link :href="route('admin.admins.index')" :active="request()->routeIs('admin.admins.*')" icon="shield-check">Administrators</x-admin.sidebar-link>
+            @endif
             <x-admin.sidebar-link :href="route('admin.reps.index')" :active="request()->routeIs('admin.reps.*')" icon="user-group">Sales Reps</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.delivery-routes.index')" :active="request()->routeIs('admin.delivery-routes.*')" icon="truck">Delivery Routes</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.map')" :active="request()->routeIs('admin.map')" icon="map">Live Map</x-admin.sidebar-link>
@@ -42,12 +45,34 @@
             
             <x-admin.sidebar-link :href="route('admin.customers.index')" :active="request()->routeIs('admin.customers.*')" icon="users">Customers</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.payments.index')" :active="request()->routeIs('admin.payments.*')" icon="credit-card">Payments</x-admin.sidebar-link>
-            <x-admin.sidebar-link :href="route('admin.inventory.index')" :active="request()->routeIs('admin.inventory.*')" icon="cube">Inventory</x-admin.sidebar-link>
+            <!-- Inventory - Expandable -->
+            <div x-data="{ expanded: {{ request()->routeIs('admin.inventory.*') ? 'true' : 'false' }} }" class="mt-2">
+                <button @click="expanded = !expanded" class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.inventory.*') ? 'text-glaciar-black bg-glaciar-gray-100' : 'text-glaciar-gray-600 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 opacity-75" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        Stock & Inventory
+                    </div>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': expanded }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="expanded" x-collapse class="pl-11 pr-3 py-1 space-y-1">
+                    <a href="{{ route('admin.inventory.dashboard') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.dashboard') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Dashboard</a>
+                    <a href="{{ route('admin.inventory.products.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.products.*') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Products</a>
+                    <a href="{{ route('admin.inventory.categories.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.categories.*') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Categories</a>
+                    <a href="{{ route('admin.inventory.suppliers.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.suppliers.*') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Suppliers</a>
+                    <a href="{{ route('admin.inventory.purchases.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.purchases.*') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Purchases (Stock In)</a>
+                    <a href="{{ route('admin.inventory.transactions.index') }}" class="block px-3 py-2 text-sm rounded-lg transition-colors {{ request()->routeIs('admin.inventory.transactions.*') ? 'text-glaciar-black font-semibold bg-glaciar-gray-100' : 'text-glaciar-gray-500 hover:text-glaciar-black hover:bg-glaciar-gray-50' }}">Stock History & Adjust</a>
+                </div>
+            </div>
             
             <x-admin.sidebar-link :href="route('admin.complaints.index')" :active="request()->routeIs('admin.complaints.*')" icon="flag" :badge="\App\Models\Complaint::where('status', 'Open')->count()">Complaints</x-admin.sidebar-link>
             
             <x-admin.sidebar-link :href="route('admin.attendance.index')" :active="request()->routeIs('admin.attendance.*')" icon="calendar">Attendance</x-admin.sidebar-link>
             <x-admin.sidebar-link :href="route('admin.sales.index')" :active="request()->routeIs('admin.sales.*')" icon="currency-dollar">Sales & Salary</x-admin.sidebar-link>
+            <x-admin.sidebar-link :href="route('admin.payroll.history')" :active="request()->routeIs('admin.payroll.*')" icon="document-text">Payroll Management</x-admin.sidebar-link>
             
             <!-- Reports - Expandable -->
             <div x-data="{ expanded: true }" class="mt-2">
@@ -107,7 +132,7 @@
                 <div class="flex items-center gap-3 cursor-pointer group">
                     <div class="flex flex-col items-end">
                         <span class="text-sm font-bold text-glaciar-black group-hover:text-glaciar-accent transition-colors">{{ Auth::user()?->name ?? 'Administrator' }}</span>
-                        <span class="text-xs text-glaciar-gray-500 font-medium">Super Admin</span>
+                        <span class="text-xs text-glaciar-gray-500 font-medium">{{ Auth::user()?->role === 'super_admin' ? 'Super Admin' : 'Admin' }}</span>
                     </div>
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-glaciar-accent to-glaciar-accent-dark flex items-center justify-center text-sm font-bold text-white shadow-md shadow-glaciar-accent/30 group-hover:shadow-glow transition-all duration-300 border-2 border-white">
                         {{ substr(Auth::user()?->name ?? 'A', 0, 1) }}

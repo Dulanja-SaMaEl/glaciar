@@ -34,6 +34,8 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    Route::resource('admins', \App\Http\Controllers\Admin\AdminUserController::class)->except('show');
+    
     Route::resource('reps', RepController::class);
     Route::post('reps/{rep}/targets', [RepTargetController::class, 'storeOrUpdate'])->name('reps.targets.store');
     
@@ -52,8 +54,22 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
     
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::post('/inventory/adjust', [InventoryController::class, 'adjust'])->name('inventory.adjust');
+    // Inventory Management System
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\Inventory\DashboardController::class, 'index'])->name('dashboard');
+        
+        Route::resource('categories', \App\Http\Controllers\Admin\Inventory\CategoryController::class);
+        Route::resource('suppliers', \App\Http\Controllers\Admin\Inventory\SupplierController::class);
+        Route::resource('products', \App\Http\Controllers\Admin\Inventory\ProductController::class);
+        
+        Route::resource('purchases', \App\Http\Controllers\Admin\Inventory\PurchaseController::class);
+        Route::post('purchases/{purchase}/receive', [\App\Http\Controllers\Admin\Inventory\PurchaseController::class, 'receive'])->name('purchases.receive');
+        
+        Route::get('transactions', [\App\Http\Controllers\Admin\Inventory\TransactionController::class, 'index'])->name('transactions.index');
+        Route::post('transactions/adjust', [\App\Http\Controllers\Admin\Inventory\TransactionController::class, 'adjust'])->name('transactions.adjust');
+        
+        Route::get('reports', [\App\Http\Controllers\Admin\Inventory\ReportController::class, 'index'])->name('reports.index');
+    });
     
     Route::resource('complaints', ComplaintController::class)->only(['index', 'show', 'update']);
     
@@ -67,6 +83,14 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
     Route::post('/sales/salary/{repId}/verify', [SalesController::class, 'verifyRepMonth'])->name('sales.salary.verify');
     Route::post('/sales/verify/{sale}', [SalesController::class, 'verify'])->name('sales.verify.record');
     Route::get('/sales/salary/{repId}/pdf', [SalesController::class, 'repSalaryPdf'])->name('sales.salary.pdf');
+
+    // Payroll Management
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+        Route::get('/history', [\App\Http\Controllers\Admin\PayrollController::class, 'history'])->name('history');
+        Route::get('/generate/{repId}/{year}/{month}', [\App\Http\Controllers\Admin\PayrollController::class, 'generate'])->name('generate');
+        Route::post('/store/{repId}/{year}/{month}', [\App\Http\Controllers\Admin\PayrollController::class, 'store'])->name('store');
+        Route::get('/paysheet/{id}/pdf', [\App\Http\Controllers\Admin\PayrollController::class, 'downloadPdf'])->name('pdf');
+    });
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     

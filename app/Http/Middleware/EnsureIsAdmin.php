@@ -19,8 +19,8 @@ class EnsureIsAdmin
             return redirect()->route('login');
         }
 
-        // 2. If logged in, but ROLE is not admin, stop them.
-        if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'staff') {
+        // 2. If logged in, but ROLE is not admin, staff, or super_admin, stop them.
+        if (!in_array(Auth::user()->role, ['admin', 'staff', 'super_admin'])) {
             abort(403, 'Unauthorized. Access restricted to Glaciar Staff.');
         }
 

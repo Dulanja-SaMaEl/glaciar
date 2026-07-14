@@ -176,8 +176,30 @@ class SalaryCalculatorService
         $totalCost = $totalSales * $costRatio;
         $grossProfit = $totalSales - $totalCost;
 
-        $totalSalary = $basicSalary + $allowance + $commission + $bonus;
-        $netProfit = $grossProfit - $totalSalary;
+        // Attendance and Deduction Logic
+        $workingDays = 26; // Standard working days
+        $attendances = \App\Models\Attendance::where('rep_id', $repId)
+            ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->get();
+            
+        $presentDays = $attendances->where('status', 'Present')->count();
+        $absentDays = max($workingDays - $presentDays, 0);
+        $lateDays = $attendances->where('status', 'Late')->count();
+        
+        $dailyRate = $basicSalary > 0 ? ($basicSalary / $workingDays) : 0;
+        
+        $absentDeduction = $absentDays * $dailyRate;
+        // Late deduction (e.g. half day deduction for 3 late days, or just standard penalty)
+        $latePenaltyRate = 500; // Rs 500 per late arrival
+        $lateDeduction = $lateDays * $latePenaltyRate;
+        
+        // EPF/ETF (example 8% of Basic)
+        $epfDeduction = $basicSalary * 0.08;
+
+        $totalEarnings = $basicSalary + $allowance + $commission + $bonus;
+        $totalDeductions = $absentDeduction + $lateDeduction + $epfDeduction;
+        $netSalary = $totalEarnings - $totalDeductions;
+        $netProfit = $grossProfit - $totalEarnings; // Cost to company is earnings
 
         $rep = Rep::query()->select(['monthly_target'])->find($repId);
         $repMonthlyTarget = $rep?->monthly_target ?? $bonusThreshold;
@@ -198,7 +220,12 @@ class SalaryCalculatorService
             'total_cost' => $this->round2($totalCost),
             'gross_profit' => $this->round2($grossProfit),
 
+            // Earnings
+            'basic_salary' => $this->round2($basicSalary),
+            'allowance' => $this->round2($allowance),
             'commission' => $this->round2($commission),
+            'bonus' => $this->round2($bonus),
+            'total_earnings' => $this->round2($totalEarnings),
             'commission_breakdown' => [
                 'tier1_sales' => $this->round2($tier1Sales),
                 'tier1_commission' => $this->round2($tier1Commission),
@@ -206,11 +233,17 @@ class SalaryCalculatorService
                 'tier2_commission' => $this->round2($tier2Commission),
             ],
 
-            'bonus' => $this->round2($bonus),
+            // Deductions
+            'absent_days' => $absentDays,
+            'late_days' => $lateDays,
+            'absent_deduction' => $this->round2($absentDeduction),
+            'late_deduction' => $this->round2($lateDeduction),
+            'epf_deduction' => $this->round2($epfDeduction),
+            'total_deductions' => $this->round2($totalDeductions),
 
-            'basic_salary' => $this->round2($basicSalary),
-            'allowance' => $this->round2($allowance),
-            'total_salary' => $this->round2($totalSalary),
+            // Summary
+            'total_salary' => $this->round2($totalEarnings), // Kept for backwards compatibility
+            'net_salary' => $this->round2($netSalary),
             'net_profit' => $this->round2($netProfit),
 
             'bonus_earned' => $bonusEarned,
