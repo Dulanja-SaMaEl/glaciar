@@ -11,27 +11,72 @@ use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
+    public function index(Request $request)
+    {
+        $repId = optional($request->user())->rep?->id;
+
+        $query = Payment::query()
+            ->with(['order.customer'])
+            ->when($repId, function ($q) use ($repId) {
+                $q->whereHas('order', function ($sq) use ($repId) {
+                    $sq->where('rep_id', $repId);
+                });
+            });
+
+        $payments = $query->latest()->get()->map(function ($payment) {
+            return [
+                'id' => (string) $payment->id,
+                'customer_name' => $payment->order->customer->name ?? 'Unknown',
+                'time' => $payment->created_at->format('Y-m-d H:i:s'),
+                'invoice_number' => $payment->reference,
+                'amount' => (float) $payment->amount,
+                'method' => $payment->method,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $payments
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'order_id' => 'required|exists:orders,id',
+            'customer_id' => 'required|exists:customers,id',
             'amount' => 'required|numeric|min:0',
-            'method' => 'required|in:cash,card,bank_transfer,cheque',
+            'payment_method' => 'required|in:cash,card,bank_transfer,cheque,transfer',
+            'notes' => 'nullable|string',
         ]);
 
-        $order = Order::find($validatedData['order_id']);
+        // Map payment method correctly if it's 'transfer'
+        $method = $validatedData['payment_method'] === 'transfer' ? 'bank_transfer' : $validatedData['payment_method'];
+
+        // Find the latest order for this customer to attach the payment to
+        $order = Order::where('customer_id', $validatedData['customer_id'])
+                      ->latest()
+                      ->first();
 
         if (!$order) {
-            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+            // Create a dummy order if none exists so the payment can be tracked in the system
+            $order = Order::create([
+                'customer_id' => $validatedData['customer_id'],
+                'rep_id' => optional($request->user())->rep?->id,
+                'type' => 'app',
+                'total' => $validatedData['amount'],
+                'status' => 'delivered',
+                'payment_method' => $method,
+                'notes' => 'Auto-generated order for direct payment. ' . ($validatedData['notes'] ?? ''),
+            ]);
         }
 
         DB::beginTransaction();
 
         try {
             $payment = Payment::create([
-                'order_id' => $validatedData['order_id'],
+                'order_id' => $order->id,
                 'amount' => $validatedData['amount'],
-                'method' => $validatedData['method'],
+                'method' => $method,
                 'status' => 'pending',
                 'reference' => 'PAY-' . strtoupper(uniqid()),
             ]);

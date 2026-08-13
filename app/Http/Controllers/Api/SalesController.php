@@ -66,6 +66,37 @@ class SalesController extends Controller
                 'submitted_at' => now(),
             ]);
 
+            // Deduct stock for each size sold
+            $inventoryService = app(\App\Services\InventoryService::class);
+            
+            foreach ($cases as $sizeLabel => $caseQty) {
+                if ($caseQty > 0) {
+                    $sizeMl = (int) str_replace('ml', '', $sizeLabel);
+                    
+                    // Get bottles per case for this size
+                    $casePriceRow = \App\Models\CasePrice::active()->where('product_size', $sizeLabel)->first();
+                    $bottlesPerCase = $casePriceRow ? $casePriceRow->bottles_per_case : 24;
+                    
+                    $totalBottles = $caseQty * $bottlesPerCase;
+
+                    // Find the active product corresponding to this size
+                    $product = \App\Models\Product::where('size_ml', $sizeMl)->where('status', 'active')->first();
+                    
+                    if ($product) {
+                        $inventoryService->adjustStock(
+                            $product,
+                            -$totalBottles, // deduct
+                            'sale',
+                            'Sales Rep Submission',
+                            'Sale Record ID: ' . $sale->id,
+                            $user->id,
+                            'Sale',
+                            $sale->id
+                        );
+                    }
+                }
+            }
+
             DB::commit();
 
             return response()->json([
