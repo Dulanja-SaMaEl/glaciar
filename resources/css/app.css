@@ -40,63 +40,6 @@ html.lenis, html.lenis body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   CUSTOM PRECISION CURSOR (Desktop Only)
-   ═══════════════════════════════════════════════════════════════════ */
-.gl-cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #38bdf8;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: opacity 0.3s ease, transform 0.15s ease-out;
-  will-change: transform;
-}
-
-.gl-cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: width 0.3s var(--ease-glaciar-out), 
-              height 0.3s var(--ease-glaciar-out), 
-              border-color 0.3s ease, 
-              background-color 0.3s ease;
-  will-change: transform, width, height;
-}
-
-body.cursor-hover .gl-cursor-ring {
-  width: 54px;
-  height: 54px;
-  border-color: rgba(56, 189, 248, 0.8);
-  background-color: rgba(56, 189, 248, 0.07);
-  backdrop-filter: blur(2px);
-}
-
-body.cursor-hover .gl-cursor-dot {
-  transform: translate(-50%, -50%) scale(1.5);
-  background-color: #ffffff;
-}
-
-/* Hide cursor on touch / mobile devices */
-@media (pointer: coarse), (max-width: 1024px) {
-  .gl-cursor-dot,
-  .gl-cursor-ring {
-    display: none !important;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
    PAGE VEIL INTRO (<600ms Snappy Reveal)
    ═══════════════════════════════════════════════════════════════════ */
 .gl-page-veil {
@@ -189,16 +132,23 @@ body.cursor-hover .gl-cursor-dot {
 /* ═══════════════════════════════════════════════════════════════════
    SMOOTH SECTION & CONTENT STAGGER REVEAL SYSTEM (INTERSECTION OBSERVER)
    ═══════════════════════════════════════════════════════════════════ */
-.gl-section-reveal,
-.gl-section-header,
-.gl-reveal-item {
-  will-change: opacity, transform;
-}
-
 .gl-section-reveal.revealed,
 .gl-section-header.revealed,
 .gl-reveal-item.revealed {
   opacity: 1;
+}
+
+/* Deep Off-Screen Section Performance (Skips layout/paint until scrolled near) */
+@supports (content-visibility: auto) {
+  #the-source,
+  #the-water,
+  #collection,
+  #technology,
+  #sustainability,
+  #reviews {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 900px;
+  }
 }
 
 /* Signature "Ice Reveal" Section Mask */

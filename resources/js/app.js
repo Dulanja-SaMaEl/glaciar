@@ -2,7 +2,6 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 
 import { initLenis } from './motion/lenis';
-import { initCursor } from './motion/cursor';
 import { initMagnetic } from './motion/magnetic';
 import { initHeroMotion } from './motion/hero';
 import { initScrollStory } from './motion/scroll-story';
@@ -22,9 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Smooth scroll
   initLenis();
-
-  // Desktop custom precision cursor
-  initCursor();
 
   // Magnetic CTA buttons
   initMagnetic();

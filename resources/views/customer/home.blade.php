@@ -396,9 +396,16 @@
 
                     <!-- Product Image Stage with Shimmer -->
                     <div class="relative aspect-[3/4] flex items-center justify-center p-6 overflow-hidden rounded-xl bg-gradient-to-b from-white/5 to-transparent my-4">
-                        <img src="{{ asset('images/hero/glaciar-crystal-bottle.png') }}" 
-                             alt="{{ $product->name }}" 
-                             class="product-card-image max-h-full object-contain filter drop-shadow-[0_20px_35px_rgba(4,15,45,0.6)] group-hover:scale-105 transition-transform duration-500" />
+                        <picture>
+                            <source srcset="{{ asset('images/hero/glaciar-crystal-bottle.webp') }}" type="image/webp">
+                            <img src="{{ asset('images/hero/glaciar-crystal-bottle.png') }}" 
+                                 alt="{{ $product->name }}" 
+                                 width="400"
+                                 height="600"
+                                 loading="lazy"
+                                 decoding="async"
+                                 class="product-card-image max-h-full object-contain filter drop-shadow-[0_20px_35px_rgba(4,15,45,0.6)] group-hover:scale-105 transition-transform duration-500" />
+                        </picture>
                     </div>
 
                     <!-- Info & Action -->

@@ -16,6 +16,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- Preload Critical Above-The-Fold 3D Hero Keyframe (0ms First Paint) -->
+    <link rel="preload" as="image" href="{{ asset('images/hero/3d-frames/frame_000.webp') }}" type="image/webp" fetchpriority="high">
+
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -23,10 +26,6 @@
     
     <!-- 1. Ultra-thin Top Scroll Progress Indicator -->
     <div class="gl-scroll-progress" aria-hidden="true"></div>
-
-    <!-- 2. Desktop Custom Precision Cursor -->
-    <div class="gl-cursor-dot" aria-hidden="true"></div>
-    <div class="gl-cursor-ring" aria-hidden="true"></div>
 
     <!-- 3. Fast Page Load Intro Veil (<600ms Snappy Entrance) -->
     <div class="gl-page-veil" aria-hidden="true">

@@ -212,6 +212,7 @@ export function initScrollStory() {
   }
 
   // 7. Parallax Floating Elements
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const parallaxLayers = document.querySelectorAll('[data-parallax]');
   if (parallaxLayers.length > 0 && !prefersReduced) {
     parallaxLayers.forEach(layer => {

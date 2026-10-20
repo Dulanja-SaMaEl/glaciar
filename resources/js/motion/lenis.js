@@ -7,15 +7,19 @@ gsap.registerPlugin(ScrollTrigger);
 let lenisInstance = null;
 
 export function initLenis() {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   // Initialize Lenis with natural, responsive inertia
   lenisInstance = new Lenis({
-    duration: 1.1,
+    duration: 1.05,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Apple-style smooth decay
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    wheelMultiplier: 1.0,
-    touchMultiplier: 1.4,
+    wheelMultiplier: 0.95,
+    touchMultiplier: 1.0,
+    syncTouch: true,
+    syncTouchLerp: 0.1,
     infinite: false,
   });
 
@@ -28,7 +32,8 @@ export function initLenis() {
     lenisInstance.raf(time * 1000);
   });
 
-  gsap.ticker.lagSmoothing(0);
+  // Clamps large delta leaps on device stutter (prevents violent frame skips)
+  gsap.ticker.lagSmoothing(500, 33);
 
   window.__lenis = lenisInstance;
   window.ScrollTrigger = ScrollTrigger;
