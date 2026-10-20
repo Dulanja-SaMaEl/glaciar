@@ -9,11 +9,41 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = Order::with(['customer', 'payment'])->orderBy('created_at', 'desc')->paginate(15);
-        
-        return view('admin.orders.index', compact('orders'));
+        $query = Order::with(['customer.deliveryRoutes', 'payment', 'rep'])->latest();
+
+        // Filter by status
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        // Search by ID or Customer Name / Email
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $cleanId = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $cleanId) {
+                if (!empty($cleanId)) {
+                    $q->orWhere('id', (int) $cleanId);
+                }
+                $q->orWhereHas('customer', function ($cq) use ($search) {
+                    $cq->where('name', 'like', "%{$search}%")
+                       ->orWhere('email', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
+
+        $statusCounts = [
+            'all' => Order::count(),
+            'pending' => Order::where('status', 'pending')->count(),
+            'in_progress' => Order::where('status', 'in_progress')->count(),
+            'delivered' => Order::where('status', 'delivered')->count(),
+            'cancelled' => Order::where('status', 'cancelled')->count(),
+        ];
+
+        return view('admin.orders.index', compact('orders', 'statusCounts'));
     }
 
     public function show(Order $order)

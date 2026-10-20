@@ -20,8 +20,20 @@ class LiveMapController extends Controller
             ->with(['rep.zone'])
             ->get();
 
+        $locationsData = $latestLocations->map(function ($loc) {
+            return [
+                'rep_id' => $loc->rep_id,
+                'name' => $loc->rep?->name ?? ('Rep #' . $loc->rep_id),
+                'zone' => $loc->rep?->zone?->name ?? 'Unassigned',
+                'lat' => (float) $loc->lat,
+                'lng' => (float) $loc->lng,
+                'recorded_at' => optional($loc->recorded_at)->toDateTimeString() ?? 'Recently',
+            ];
+        })->values();
+
         return view('admin.map', [
             'latestLocations' => $latestLocations,
+            'locationsData' => $locationsData,
         ]);
     }
 }

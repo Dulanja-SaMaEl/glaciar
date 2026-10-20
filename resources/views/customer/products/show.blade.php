@@ -1,114 +1,234 @@
 @extends('layouts.customer')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="bg-white border-b border-glaciar-gray-100 pt-6 pb-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex" aria-label="Breadcrumb">
-                <ol class="flex items-center space-x-2 text-sm text-glaciar-gray-500">
-                    <li>
-                        <a href="{{ route('home') }}" class="hover:text-glaciar-black transition-colors">Home</a>
-                    </li>
-                    <li>
-                        <svg class="w-4 h-4 text-glaciar-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-                    </li>
-                    <li>
-                        <a href="{{ route('products.index') }}" class="hover:text-glaciar-black transition-colors">Products</a>
-                    </li>
-                    <li>
-                        <svg class="w-4 h-4 text-glaciar-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-                    </li>
-                    <li>
-                        <span class="text-glaciar-black font-medium" aria-current="page">{{ $product->name ?? 'Glaciar Standard' }}</span>
-                    </li>
-                </ol>
-            </nav>
-        </div>
-    </div>
 
-    <!-- Product Details -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="{ qty: 1 }">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+@php
+    $sizeFormatted = ($product->size_ml ?? 500) >= 1000 ? (($product->size_ml ?? 500) / 1000) . 'L' : ($product->size_ml ?? 500) . 'ml';
+    $img = $product->image_url ?? asset('images/products/' . ($product->size_ml ?? 500) . '.jpg');
+@endphp
+
+<!-- Breadcrumb Header -->
+<div class="bg-glaciar-obsidian border-b border-white/10 py-5 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-slate-400">
+            <a href="{{ route('home') }}" class="hover:text-white transition-colors">Home</a>
+            <span>/</span>
+            <a href="{{ route('products.index') }}" class="hover:text-white transition-colors">Collection</a>
+            <span>/</span>
+            <span class="text-cyan-300 font-semibold">{{ $product->name }}</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Product Stage (Split Layout) -->
+<section class="py-20 bg-[#020617] text-white flex-grow min-h-[85vh] border-b border-white/10 gl-section-reveal" x-data="{ qty: 1, activeTab: 'specs', currentImage: '{{ $img }}' }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
             
-            <!-- Product Image -->
-            <div class="bg-gradient-to-br from-blue-50 to-glaciar-gray-100 rounded-3xl p-12 flex items-center justify-center relative overflow-hidden aspect-square">
-                <!-- Abstract Bottle Shape placeholder -->
-                <div class="w-2/3 h-4/5 bg-white/80 backdrop-blur-sm rounded-t-full rounded-b-2xl border-2 border-white/50 shadow-xl flex flex-col items-center justify-center relative z-10 transition-transform duration-500 hover:scale-105">
-                    <div class="absolute top-0 w-1/3 h-1/6 bg-blue-100/50 rounded-t-lg -mt-2"></div>
-                    <span class="text-5xl font-black text-glaciar-black/20 tracking-tighter mb-4">{{ ($product->size_ml ?? 500) >= 1000 ? (($product->size_ml ?? 500) / 1000) . 'L' : ($product->size_ml ?? 500) . 'ml' }}</span>
-                    <span class="text-xl font-bold text-blue-900/50 font-serif italic text-center px-4">{{ $product->name ?? 'Glaciar Standard' }}</span>
+            <!-- Left: Product Gallery & Stage (Columns 1-7) -->
+            <div class="lg:col-span-7 sticky top-28 space-y-6 gl-section-header">
+                <!-- Main Image Canvas -->
+                <div class="relative w-full aspect-[4/5] bg-[#0b1226]/85 backdrop-blur-2xl rounded-3xl border border-white/15 overflow-hidden shadow-2xl flex items-center justify-center p-8 sm:p-12 group">
+                    <img :src="currentImage" 
+                         alt="{{ $product->name }}" 
+                         class="w-full h-full object-contain object-center transition-transform duration-700 ease-out group-hover:scale-105 filter drop-shadow-[0_25px_45px_rgba(0,0,0,0.8)]" />
+                    
+                    <!-- Ambient Glow underneath -->
+                    <div class="absolute bottom-6 w-3/4 h-12 bg-cyan-500/10 rounded-full blur-xl pointer-events-none"></div>
+
+                    <!-- Watermark Badges -->
+                    <div class="absolute top-6 left-6 flex items-center gap-2">
+                        <span class="text-[10px] font-mono font-bold tracking-widest text-cyan-300 bg-white/5 border border-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg">
+                            {{ strtoupper($sizeFormatted) }} SPEC
+                        </span>
+                    </div>
+
+                    <div class="absolute top-6 right-6">
+                        <span class="inline-flex items-center text-[10px] font-mono font-semibold tracking-wider text-emerald-300 bg-emerald-500/10 border border-emerald-400/30 px-3 py-1 rounded-lg">
+                            AUTHENTIC GLACIAR
+                        </span>
+                    </div>
                 </div>
-                
-                <!-- Water ripple effect -->
-                <div class="absolute bottom-0 w-full h-1/3 bg-gradient-to-t from-blue-200/40 to-transparent"></div>
+
+                <!-- Secondary Gallery Thumbnails -->
+                <div class="grid grid-cols-4 gap-3">
+                    <button type="button" 
+                            @click="currentImage = '{{ $img }}'"
+                            :class="currentImage === '{{ $img }}' ? 'ring-2 ring-cyan-400 border-transparent' : 'border-white/10 hover:border-white/30'"
+                            class="aspect-square bg-[#0b1226]/80 rounded-xl border p-2 flex items-center justify-center overflow-hidden transition-all">
+                        <img src="{{ $img }}" alt="{{ $product->name }} Angle 1" class="w-full h-full object-contain" />
+                    </button>
+                    <button type="button" 
+                            @click="currentImage = '{{ asset('images/hero/glaciar-crystal-bottle.png') }}'"
+                            :class="currentImage === '{{ asset('images/hero/glaciar-crystal-bottle.png') }}' ? 'ring-2 ring-cyan-400 border-transparent' : 'border-white/10 hover:border-white/30'"
+                            class="aspect-square bg-[#0b1226]/80 rounded-xl border p-2 flex items-center justify-center overflow-hidden transition-all">
+                        <img src="{{ asset('images/hero/glaciar-crystal-bottle.png') }}" alt="{{ $product->name }} Studio" class="w-full h-full object-contain" />
+                    </button>
+                    <button type="button" 
+                            @click="currentImage = '{{ asset('images/products/500.jpg') }}'"
+                            :class="currentImage === '{{ asset('images/products/500.jpg') }}' ? 'ring-2 ring-cyan-400 border-transparent' : 'border-white/10 hover:border-white/30'"
+                            class="aspect-square bg-[#0b1226]/80 rounded-xl border p-2 flex items-center justify-center overflow-hidden transition-all">
+                        <img src="{{ asset('images/products/500.jpg') }}" alt="Standard Vessel" class="w-full h-full object-contain" />
+                    </button>
+                    <button type="button" 
+                            @click="currentImage = '{{ asset('images/products/1000.jpg') }}'"
+                            :class="currentImage === '{{ asset('images/products/1000.jpg') }}' ? 'ring-2 ring-cyan-400 border-transparent' : 'border-white/10 hover:border-white/30'"
+                            class="aspect-square bg-[#0b1226]/80 rounded-xl border p-2 flex items-center justify-center overflow-hidden transition-all">
+                        <img src="{{ asset('images/products/1000.jpg') }}" alt="Hydration Vessel" class="w-full h-full object-contain" />
+                    </button>
+                </div>
             </div>
 
-            <!-- Product Info -->
-            <div class="flex flex-col justify-center">
-                <div class="mb-4">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-glaciar-gray-50 text-glaciar-gray-600 border border-glaciar-gray-200">
-                        {{ ($product->size_ml ?? 500) >= 1000 ? 'Large Format' : 'Personal Size' }}
-                    </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100 ml-2">
-                        Still Water
-                    </span>
-                </div>
+            <!-- Right: Product Information & Purchase Flow (Columns 8-12) -->
+            <div class="lg:col-span-5 space-y-8 gl-reveal-item">
                 
-                <h1 class="text-4xl sm:text-5xl font-extrabold text-glaciar-black mb-4">{{ $product->name ?? 'Glaciar Standard' }}</h1>
-                
-                <p class="text-3xl font-bold text-glaciar-black mb-6">
-                    LKR {{ number_format($product->price ?? 80, 0) }} <span class="text-lg text-glaciar-gray-500 font-normal">/ bottle</span>
-                </p>
-                
-                <div class="prose prose-glaciar mb-8 text-glaciar-gray-600">
-                    <p>{{ $product->description ?? 'Pure, refreshing spring water sourced from high altitude aquifers and strictly filtered for guaranteed purity and taste. The perfect size to keep you hydrated throughout your daily activities.' }}</p>
-                    
-                    <ul class="mt-4 space-y-2 text-sm">
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Naturally balanced pH</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Zero calories, zero sweeteners</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 100% recyclable packaging</li>
-                    </ul>
+                <div>
+                    <!-- Small Label -->
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[11px] font-mono tracking-ultra uppercase text-cyan-300 font-bold">
+                            GLACIAR VESSEL ARCHITECTURE
+                        </span>
+                        <span class="text-white/20">·</span>
+                        <span class="text-xs font-mono text-slate-400 uppercase">{{ $sizeFormatted }}</span>
+                    </div>
+
+                    <!-- Product Title -->
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-none mb-4">
+                        {{ $product->name }}
+                    </h1>
+
+                    <!-- Price -->
+                    <div class="flex items-baseline gap-3 mb-6">
+                        <span class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
+                            LKR {{ number_format($product->price, 0) }}
+                        </span>
+                        <span class="text-xs font-mono uppercase text-slate-400 tracking-wider">
+                            / INCL. TAX & STERILE SEAL
+                        </span>
+                    </div>
+
+                    <!-- Editorial Description -->
+                    <p class="text-slate-300 text-sm leading-relaxed font-light mb-6">
+                        {{ $product->description ?? 'Crafted from heavy optical-grade flint glass with double-wall thermal insulation. Sourced directly from untouched alpine springs, providing crisp alkaline hydration throughout the day.' }}
+                    </p>
+
+                    <!-- Fast Spec Matrix -->
+                    <div class="grid grid-cols-2 gap-3 p-5 bg-white/[0.03] backdrop-blur-md rounded-2xl border border-white/10 mb-8 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">CAPACITY</span>
+                            <span class="font-bold text-white">{{ $sizeFormatted }} ({{ $product->size_ml }}ml)</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">TEMPERATURE</span>
+                            <span class="font-bold text-cyan-300">24h Sub-Zero Hold</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">CORE MATERIAL</span>
+                            <span class="font-bold text-white">Heavy Flint Glass</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">DISPATCH STATUS</span>
+                            <span class="font-bold text-emerald-400">Immediate Allocation</span>
+                        </div>
+                    </div>
                 </div>
 
-                <form action="{{ route('cart.store') }}" method="POST" class="mt-auto">
+                <!-- Add to Cart Form -->
+                <form action="{{ route('cart.store') }}" method="POST" class="space-y-6 pt-4 border-t border-white/10">
                     @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id ?? 1 }}">
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
                     
-                    <div class="flex items-end gap-6 mb-8">
-                        <div>
-                            <label for="qty" class="block text-sm font-medium text-glaciar-gray-700 mb-2">Quantity</label>
-                            <div class="flex items-center border border-glaciar-gray-300 rounded-lg overflow-hidden w-32">
-                                <button type="button" @click="if(qty > 1) qty--" class="px-3 py-2 bg-glaciar-gray-50 text-glaciar-gray-600 hover:bg-glaciar-gray-100 transition-colors focus:outline-none">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                    <div>
+                        <label for="qty-input" class="block text-xs uppercase font-mono tracking-wider font-semibold text-slate-400 mb-2">
+                            Select Allocation Quantity
+                        </label>
+                        <div class="flex items-center gap-4">
+                            <!-- Quantity Counter -->
+                            <div class="inline-flex items-center bg-white/5 border border-white/15 rounded-xl overflow-hidden shadow-sm">
+                                <button type="button" 
+                                        @click="if(qty > 1) qty--" 
+                                        class="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/10 transition-colors focus:outline-none min-h-[44px]"
+                                        aria-label="Decrease quantity">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                 </button>
-                                <input type="number" id="qty" name="qty" x-model="qty" min="1" max="100" class="w-full text-center border-0 focus:ring-0 p-0 text-glaciar-black font-medium" />
-                                <button type="button" @click="if(qty < 100) qty++" class="px-3 py-2 bg-glaciar-gray-50 text-glaciar-gray-600 hover:bg-glaciar-gray-100 transition-colors focus:outline-none">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <input type="number" 
+                                       id="qty-input" 
+                                       name="qty" 
+                                       x-model="qty" 
+                                       min="1" 
+                                       max="100" 
+                                       class="w-14 text-center bg-transparent border-0 focus:ring-0 p-0 text-sm font-mono font-bold text-white" />
+                                <button type="button" 
+                                        @click="if(qty < 100) qty++" 
+                                        class="px-4 py-3 text-slate-300 hover:text-white hover:bg-white/10 transition-colors focus:outline-none min-h-[44px]"
+                                        aria-label="Increase quantity">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                 </button>
                             </div>
-                        </div>
-                        
-                        <div class="flex-1">
-                            <button type="submit" class="w-full bg-glaciar-black hover:bg-glaciar-gray-900 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                Add to Cart
+
+                            <!-- Primary Add to Cart Button -->
+                            <button type="submit" 
+                                    class="gl-magnetic flex-1 py-4 px-6 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs uppercase tracking-widest rounded-xl transition-all duration-300 shadow-[0_0_25px_rgba(56,189,248,0.5)] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 min-h-[44px]">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                <span>Add to Cart</span>
                             </button>
                         </div>
                     </div>
                 </form>
-                
-                <!-- Stock Status & Delivery -->
-                <div class="bg-glaciar-gray-50 rounded-xl p-4 flex flex-col gap-3">
-                    <div class="flex items-center text-sm">
-                        <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-medium text-glaciar-black">In Stock</span>
+
+                <!-- Technical Expandable Accordion -->
+                <div class="border-t border-white/10 pt-6 space-y-3" x-data="{ openSection: 1 }">
+                    
+                    <!-- Accordion Item 1 -->
+                    <div class="border border-white/10 bg-white/[0.03] rounded-2xl overflow-hidden backdrop-blur-md">
+                        <button type="button" 
+                                @click="openSection = (openSection === 1 ? null : 1)" 
+                                class="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-white hover:text-cyan-300 transition-colors">
+                            <span>01 / Specifications & Sourcing</span>
+                            <span x-text="openSection === 1 ? '−' : '+'" class="text-base font-mono"></span>
+                        </button>
+                        <div x-show="openSection === 1" x-collapse class="px-5 pb-5 text-xs text-slate-300 leading-relaxed font-light border-t border-white/10 pt-4">
+                            <ul class="space-y-2 font-mono text-[11px]">
+                                <li>• High Altitude Glacial Spring Source (1,890m elevation)</li>
+                                <li>• Natural 7.4 pH balance with rich alkaline mineral electrolytes</li>
+                                <li>• 100% BPA, BPS, and microplastic free</li>
+                                <li>• Heavy optical flint glass with 24-facet light prism base</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="flex items-center text-sm">
-                        <svg class="w-5 h-5 text-glaciar-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-                        <span class="text-glaciar-gray-600">Free delivery on orders over LKR 5,000</span>
+
+                    <!-- Accordion Item 2 -->
+                    <div class="border border-white/10 bg-white/[0.03] rounded-2xl overflow-hidden backdrop-blur-md">
+                        <button type="button" 
+                                @click="openSection = (openSection === 2 ? null : 2)" 
+                                class="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-white hover:text-cyan-300 transition-colors">
+                            <span>02 / Temperature & Thermodynamics</span>
+                            <span x-text="openSection === 2 ? '−' : '+'" class="text-base font-mono"></span>
+                        </button>
+                        <div x-show="openSection === 2" x-collapse class="px-5 pb-5 text-xs text-slate-300 leading-relaxed font-light border-t border-white/10 pt-4">
+                            Heavy flint glass density retains sub-zero temperatures naturally without condensation sweating on fine wood surfaces or executive desks.
+                        </div>
                     </div>
+
+                    <!-- Accordion Item 3 -->
+                    <div class="border border-white/10 bg-white/[0.03] rounded-2xl overflow-hidden backdrop-blur-md">
+                        <button type="button" 
+                                @click="openSection = (openSection === 3 ? null : 3)" 
+                                class="w-full p-4 sm:p-5 text-left flex items-center justify-between text-xs font-mono font-bold uppercase tracking-wider text-white hover:text-cyan-300 transition-colors">
+                            <span>03 / Zone Delivery & Closed Loop</span>
+                            <span x-text="openSection === 3 ? '−' : '+'" class="text-base font-mono"></span>
+                        </button>
+                        <div x-show="openSection === 3" x-collapse class="px-5 pb-5 text-xs text-slate-300 leading-relaxed font-light border-t border-white/10 pt-4">
+                            Direct local delivery handled by dedicated Glaciar zone representatives in insulated transport cases. Eligible for our complimentary closed-loop return & refill exchange service.
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
     </div>
+</section>
+
 @endsection

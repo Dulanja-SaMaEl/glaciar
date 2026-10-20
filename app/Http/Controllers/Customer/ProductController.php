@@ -47,4 +47,13 @@ class ProductController extends Controller
     {
         return view('customer.products.show', compact('product'));
     }
+
+    public function collection()
+    {
+        $vessels = Product::where('status', 'active')
+            ->orderBy('size_ml', 'asc')
+            ->get();
+
+        return view('customer.collection', compact('vessels'));
+    }
 }

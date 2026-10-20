@@ -35,6 +35,18 @@ class Product extends Model
         return max(0, $this->stock - $this->reserved_stock);
     }
 
+    public function getImageUrlAttribute()
+    {
+        if ($this->image && file_exists(public_path($this->image))) {
+            return asset($this->image);
+        }
+        $sizePath = 'images/products/' . $this->size_ml . '.jpg';
+        if (file_exists(public_path($sizePath))) {
+            return asset($sizePath);
+        }
+        return asset('images/products/500.jpg');
+    }
+
     public function getStockStatusAttribute()
     {
         if ($this->stock <= 0) {
