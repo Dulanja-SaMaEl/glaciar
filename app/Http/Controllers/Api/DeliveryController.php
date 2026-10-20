@@ -21,10 +21,36 @@ class DeliveryController extends Controller
             ->with(['order.customer', 'order.items.product'])
             ->when($repId, fn ($q) => $q->where('rep_id', $repId), fn ($q) => $q->whereRaw('1=0'));
 
+        $deliveries = $query->get()->map(function ($delivery) {
+            $bottles = 0;
+            if ($delivery->order) {
+                foreach ($delivery->order->items as $item) {
+                    if ($item->product && str_contains(strtolower($item->product->name), 'bottle')) {
+                        $bottles += $item->quantity;
+                    } else if (!$item->product) {
+                        $bottles += $item->quantity;
+                    }
+                }
+            }
+            
+            return [
+                'id' => $delivery->id,
+                'order_id' => $delivery->order_id,
+                'customer_id' => $delivery->order->customer_id ?? null,
+                'customer_name' => $delivery->order->customer->name ?? 'Unknown',
+                'customer_type' => $delivery->order->customer->type ?? 'individual',
+                'time' => $delivery->created_at->format('Y-m-d H:i:s'),
+                'bottles' => $bottles > 0 ? $bottles : $delivery->bottles_delivered ?? 0,
+                'amount' => $delivery->order->total ?? 0,
+                'status' => $delivery->status,
+            ];
+        });
+
         return response()->json([
             'success' => true,
-            'data' => $query->get()
+            'data' => $deliveries
         ]);
+
     }
 
     public function store(Request $request)

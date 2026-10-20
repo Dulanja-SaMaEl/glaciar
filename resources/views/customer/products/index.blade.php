@@ -1,109 +1,142 @@
 @extends('layouts.customer')
 
 @section('content')
-    <!-- Breadcrumb -->
-    <div class="bg-white border-b border-glaciar-gray-100 pt-6 pb-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav class="flex" aria-label="Breadcrumb">
-                <ol class="flex items-center space-x-2 text-sm text-glaciar-gray-500">
-                    <li>
-                        <a href="{{ route('home') }}" class="hover:text-glaciar-black transition-colors">Home</a>
-                    </li>
-                    <li>
-                        <svg class="w-4 h-4 text-glaciar-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-                    </li>
-                    <li>
-                        <span class="text-glaciar-black font-medium" aria-current="page">Products</span>
-                    </li>
-                </ol>
-            </nav>
-            
-            <h1 class="text-4xl font-extrabold text-glaciar-black mt-6">All Products</h1>
+
+<!-- Header Banner -->
+<section class="bg-glaciar-obsidian text-white pt-20 pb-20 border-b border-white/10 relative overflow-hidden">
+    <!-- Ambient glow -->
+    <div class="absolute -top-20 right-1/3 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-slate-400 mb-8">
+            <a href="{{ route('home') }}" class="hover:text-white transition-colors">Home</a>
+            <span>/</span>
+            <span class="text-cyan-300 font-semibold">The Boutique</span>
+        </nav>
+
+        <div class="max-w-3xl">
+            <span class="text-[11px] font-mono tracking-ultra uppercase text-cyan-300 font-bold block mb-3">
+                ARCTIC COMMERCE · DIRECT DISPATCH
+            </span>
+            <h1 class="text-[clamp(2.5rem,5.5vw,4.8rem)] font-black tracking-tight leading-[0.98] text-white">
+                THE BOUTIQUE.
+            </h1>
+            <p class="mt-4 text-slate-300 text-sm sm:text-base font-light leading-relaxed max-w-2xl">
+                Direct cellar allocations, high-capacity vessels, and cold-chain replenishment. Certified 10,000-year purity delivered under temperature-controlled logistics.
+            </p>
         </div>
     </div>
+</section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="{ mobileFiltersOpen: false }">
-        <div class="flex flex-col md:flex-row gap-8">
+<!-- Filter & Grid Section -->
+<section class="py-16 bg-[#020617] text-white flex-grow min-h-[70vh] border-b border-white/10 gl-section-reveal">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Filter & Sorting Bar -->
+        <div class="bg-[#0b1226]/85 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-white/15 shadow-2xl mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4 gl-section-header">
             
-            <!-- Mobile filter dialog toggle -->
-            <div class="md:hidden flex items-center justify-between mb-4">
-                <button type="button" @click="mobileFiltersOpen = true" class="inline-flex items-center font-medium text-glaciar-black">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    Filters
-                </button>
+            <!-- Size Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 md:pb-0">
+                <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400 mr-2 flex-shrink-0">SIZE:</span>
+                
+                <a href="{{ route('products.index', request()->only('sort')) }}" 
+                   class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider transition-all flex-shrink-0 min-h-[38px] flex items-center {{ !request('size') ? 'bg-cyan-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)]' : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10' }}">
+                    All
+                </a>
+
+                @foreach($sizes ?? [250, 500, 1000, 1500, 5000, 19000] as $s)
+                    @php
+                        $label = $s >= 1000 ? ($s / 1000) . 'L' : $s . 'ml';
+                        $isActive = request('size') == $s;
+                    @endphp
+                    <a href="{{ route('products.index', array_merge(request()->only('sort'), ['size' => $s])) }}" 
+                       class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-semibold uppercase tracking-wider transition-all flex-shrink-0 min-h-[38px] flex items-center {{ $isActive ? 'bg-cyan-400 text-slate-950 font-bold shadow-[0_0_15px_rgba(56,189,248,0.4)]' : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10' }}">
+                        {{ $label }}
+                    </a>
+                @endforeach
             </div>
 
-            <!-- Sidebar Filters (Desktop) -->
-            <aside class="hidden md:block w-64 flex-shrink-0">
-                <form class="space-y-8 sticky top-28">
-                    
-                    <!-- Size Filter -->
-                    <div>
-                        <h3 class="font-bold text-glaciar-black mb-4">Size</h3>
-                        <div class="space-y-3">
-                            @foreach(['250ml', '500ml', '1L', '1.5L', '5L', '19L'] as $idx => $size)
-                                <div class="flex items-center">
-                                    <input id="size-{{ $idx }}" name="sizes[]" value="{{ $size }}" type="checkbox" class="h-4 w-4 text-glaciar-black border-glaciar-gray-300 rounded focus:ring-glaciar-black">
-                                    <label for="size-{{ $idx }}" class="ml-3 text-sm text-glaciar-gray-700">
-                                        {{ $size }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
+            <!-- Sort Form -->
+            <form action="{{ route('products.index') }}" method="GET" class="flex items-center gap-3 m-0 flex-shrink-0">
+                @if(request('size'))
+                    <input type="hidden" name="size" value="{{ request('size') }}">
+                @endif
+                <label for="sort" class="text-[10px] uppercase font-mono tracking-wider text-slate-400 flex-shrink-0">SORT BY:</label>
+                <select id="sort" name="sort" onchange="this.form.submit()" 
+                        class="bg-[#030712] border border-white/15 text-white text-xs font-mono font-medium rounded-lg px-3 py-2 focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 pr-8">
+                    <option value="" {{ !request('sort') ? 'selected' : '' }}>Featured</option>
+                    <option value="price_asc" {{ request('sort') === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                    <option value="price_desc" {{ request('sort') === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Newest Formats</option>
+                </select>
+            </form>
+
+        </div>
+
+        <!-- Product Count Indicator -->
+        <div class="flex items-center justify-between mb-8 text-xs font-mono text-slate-400 uppercase tracking-wider">
+            <span>Showing {{ count($products ?? []) }} Formats</span>
+            @if(request('size') || request('sort'))
+                <a href="{{ route('products.index') }}" class="text-cyan-300 hover:text-white transition-colors flex items-center gap-1 font-bold">
+                    <span>Clear all filters</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+            @endif
+        </div>
+
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            @forelse($products ?? [] as $product)
+                <div class="gl-reveal-item"><x-customer.product-card :product="$product" compact="false" /></div>
+            @empty
+                <div class="col-span-full py-24 text-center bg-white/[0.03] rounded-3xl border border-white/10 p-8">
+                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
+                    <h3 class="text-lg font-bold text-white mb-1">No matching formats</h3>
+                    <p class="text-xs text-slate-400 max-w-sm mx-auto mb-6">There are no vessels currently matching your selected size criteria.</p>
+                    <a href="{{ route('products.index') }}" class="inline-flex items-center px-6 py-3 bg-cyan-400 text-slate-950 text-xs uppercase tracking-widest font-bold rounded-xl hover:bg-cyan-300 transition-colors shadow-lg">
+                        View Full Shop Catalog
+                    </a>
+                </div>
+            @endforelse
+        </div>
 
-                    <!-- Category Filter -->
-                    <div class="pt-6 border-t border-glaciar-gray-100">
-                        <h3 class="font-bold text-glaciar-black mb-4">Category</h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <input id="cat-still" name="category" value="Still" type="radio" class="h-4 w-4 text-glaciar-black border-glaciar-gray-300 focus:ring-glaciar-black" checked>
-                                <label for="cat-still" class="ml-3 text-sm text-glaciar-gray-700">Still Water</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input id="cat-sparkling" name="category" value="Sparkling" type="radio" class="h-4 w-4 text-glaciar-black border-glaciar-gray-300 focus:ring-glaciar-black">
-                                <label for="cat-sparkling" class="ml-3 text-sm text-glaciar-gray-700">Sparkling Water</label>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Technical Assurance Strip -->
+        <div class="mt-20 pt-10 border-t border-white/10 grid grid-cols-1 md:grid-cols-3 gap-6 text-slate-300">
+            <div class="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md gl-reveal-item">
+                <div class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-cyan-300 flex items-center justify-center flex-shrink-0 mt-0.5 font-mono text-xs font-bold">
+                    01
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Springhead Direct</h4>
+                    <p class="text-xs text-slate-400 font-light mt-1 leading-relaxed">Bottled immediately at high altitude without storage degradation.</p>
+                </div>
+            </div>
 
-                    <!-- Sort Filter -->
-                    <div class="pt-6 border-t border-glaciar-gray-100">
-                        <h3 class="font-bold text-glaciar-black mb-4">Sort by</h3>
-                        <select name="sort" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-glaciar-gray-300 focus:outline-none focus:ring-glaciar-black focus:border-glaciar-black sm:text-sm rounded-md">
-                            <option value="popular">Popularity</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                        </select>
-                    </div>
+            <div class="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md gl-reveal-item">
+                <div class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-cyan-300 flex items-center justify-center flex-shrink-0 mt-0.5 font-mono text-xs font-bold">
+                    02
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Daily Route Dispatch</h4>
+                    <p class="text-xs text-slate-400 font-light mt-1 leading-relaxed">Prompt scheduled delivery across all supported local zones.</p>
+                </div>
+            </div>
 
-                    <button type="button" class="w-full bg-glaciar-black border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-glaciar-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-glaciar-black">
-                        Apply Filters
-                    </button>
-                    
-                </form>
-            </aside>
-
-            <!-- Product Grid -->
-            <div class="flex-1">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    @forelse($products ?? [] as $product)
-                        <x-customer.product-card :product="$product" compact="false" />
-                    @empty
-                        <!-- Dummy fallback -->
-                        @foreach([
-                            ['id' => 1, 'name' => 'Glaciar Mini', 'size_ml' => 250, 'price' => 50],
-                            ['id' => 2, 'name' => 'Glaciar Standard', 'size_ml' => 500, 'price' => 80],
-                            ['id' => 3, 'name' => 'Glaciar Hydration', 'size_ml' => 1000, 'price' => 150],
-                            ['id' => 4, 'name' => 'Glaciar Family', 'size_ml' => 1500, 'price' => 200],
-                            ['id' => 5, 'name' => 'Glaciar Jug', 'size_ml' => 5000, 'price' => 500],
-                            ['id' => 6, 'name' => 'Glaciar Dispenser Bottle', 'size_ml' => 19000, 'price' => 350],
-                        ] as $p)
-                            <x-customer.product-card :product="(object)$p" compact="false" />
-                        @endforeach
-                    @endforelse
+            <div class="flex items-start gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-md gl-reveal-item">
+                <div class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-cyan-300 flex items-center justify-center flex-shrink-0 mt-0.5 font-mono text-xs font-bold">
+                    03
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Zero-Landfill Protocol</h4>
+                    <p class="text-xs text-slate-400 font-light mt-1 leading-relaxed">100% recyclable materials with closed-loop exchange available.</p>
                 </div>
             </div>
         </div>
+
     </div>
+</section>
+
 @endsection

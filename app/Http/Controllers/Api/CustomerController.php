@@ -18,11 +18,27 @@ class CustomerController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        // Current DB schema does not store customer zone assignment; return active customers.
         $customers = Customer::query()
-            ->withCount('orders')
+            ->with(['orders' => function($q) {
+                $q->latest('created_at')->limit(1); // For last delivery date
+            }])
+            ->whereHas('deliveryRoutes.reps', function($q) use ($rep) {
+                $q->where('reps.id', $rep->id);
+            })
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($customer) {
+                return [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'type' => $customer->business_type ?? 'individual',
+                    'contact_name' => $customer->name,
+                    'phone' => $customer->phone,
+                    'address' => $customer->address,
+                    'last_delivery_date' => $customer->orders->first() ? $customer->orders->first()->created_at->format('Y-m-d') : 'No deliveries yet',
+                    'outstanding_balance' => 0, // Placeholder, can be calculated from payments/invoices if schema supports it
+                ];
+            });
 
         return response()->json([
             'success' => true,

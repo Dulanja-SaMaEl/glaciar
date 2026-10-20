@@ -124,6 +124,20 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
+            
+        // Recent Complaints
+        $recentComplaints = Complaint::with(['customer', 'rep', 'assignee'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+            
+        // Today's Attendance Stats
+        $todayAttendanceStats = [
+            'total' => \App\Models\Attendance::whereDate('date', $today)->count(),
+            'present' => \App\Models\Attendance::whereDate('date', $today)->where('status', 'Present')->count(),
+            'late' => \App\Models\Attendance::whereDate('date', $today)->where('status', 'Late')->count(),
+            'absent' => \App\Models\Attendance::whereDate('date', $today)->whereIn('status', ['Absent', 'Leave'])->count(),
+        ];
 
         return view('admin.dashboard', compact(
             'todayRevenue',
@@ -132,6 +146,8 @@ class DashboardController extends Controller
             'openComplaints',
             'activeReps',
             'recentOrders',
+            'recentComplaints',
+            'todayAttendanceStats',
 
             // Sales KPIs
             'year',

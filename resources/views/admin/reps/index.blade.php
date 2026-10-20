@@ -3,7 +3,7 @@
 @section('header', 'Sales Reps')
 
 @section('content')
-    <x-admin.page-header title="All Sales Representatives" buttonText="Register New Rep" buttonRoute="#" />
+    <x-admin.page-header title="All Sales Representatives" buttonText="Register New Rep" buttonRoute="{{ route('admin.reps.create') }}" />
 
     <x-admin.data-table :columns="['ID', 'Name', 'Phone', 'Zone', 'Vehicle', 'Status', 'Actions']" :items="$reps ?? []" emptyMessage="No sales representatives found.">
         @forelse($reps ?? [] as $rep)
@@ -27,8 +27,8 @@
                     <x-admin.status-badge :status="$rep->status ?? 'active'" />
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{{ route('admin.reps.show', $rep->id) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                    <a href="#" class="text-glaciar-gray-500 hover:text-glaciar-black">Edit</a>
+                    <a href="{{ route('admin.reps.show', $rep->id) }}" class="text-glaciar-accent hover:text-glaciar-accent-dark transition-colors mr-3">View</a>
+                    <a href="{{ route('admin.reps.edit', $rep->id) }}" class="text-glaciar-gray-500 hover:text-glaciar-black transition-colors">Edit</a>
                 </td>
             </tr>
         @empty
@@ -58,8 +58,8 @@
                         <x-admin.status-badge :status="$r['status']" />
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{{ route('admin.reps.show', $r['id']) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                        <a href="#" class="text-glaciar-gray-500 hover:text-glaciar-black">Edit</a>
+                        <a href="{{ route('admin.reps.show', $r['id']) }}" class="text-glaciar-accent hover:text-glaciar-accent-dark transition-colors mr-3">View</a>
+                        <a href="{{ route('admin.reps.edit', $r['id']) }}" class="text-glaciar-gray-500 hover:text-glaciar-black transition-colors">Edit</a>
                     </td>
                 </tr>
             @endforeach

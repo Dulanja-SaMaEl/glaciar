@@ -46,4 +46,14 @@ class Rep extends Authenticatable
     {
         return $this->hasMany(RepLocation::class);
     }
+
+    public function targets()
+    {
+        return $this->hasMany(RepTarget::class);
+    }
+
+    public function deliveryRoutes()
+    {
+        return $this->belongsToMany(DeliveryRoute::class);
+    }
 }

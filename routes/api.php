@@ -38,6 +38,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/deliveries', [DeliveryController::class, 'store']);
         Route::put('/deliveries/{id}', [DeliveryController::class, 'update']);
 
+        Route::get('/payments', [PaymentController::class, 'index']);
         Route::post('/payments', [PaymentController::class, 'store']);
         Route::get('/invoices/{id}', [PaymentController::class, 'invoice']);
 
@@ -54,6 +55,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/sales/{id}', [SalesController::class, 'show']);
         Route::get('/sales/summary/month', [SalesController::class, 'summaryForMonth']);
         Route::get('/case-prices', [SalesController::class, 'casePrices']);
+        
+        // Products (with real-time stock)
+        Route::get('/products', [\App\Http\Controllers\Api\ProductController::class, 'index']);
         
         // Expose current authenticated user instance
         Route::get('/user', function (Request $request) {

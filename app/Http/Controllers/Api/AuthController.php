@@ -40,6 +40,7 @@ class AuthController extends Controller
                         'phone' => $user->phone,
                         'employee_id' => $user->rep->employee_id ?? $user->employee_id,
                         'zone' => $user->rep->zone->name ?? null,
+                        'role' => $user->role,
                     ]
                 ]
             ]);

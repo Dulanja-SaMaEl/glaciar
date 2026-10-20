@@ -27,8 +27,8 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            // 1. Check if user is Admin/Staff -> Go to Admin Panel
-            if (Auth::user()->role === 'admin' || Auth::user()->role === 'staff') {
+            // 1. Check if user is Admin/Staff/Super Admin -> Go to Admin Panel
+            if (in_array(Auth::user()->role, ['super_admin', 'admin', 'staff'])) {
                 return redirect()->intended(route('admin.dashboard'));
             }
 

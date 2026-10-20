@@ -1,61 +1,88 @@
-<footer class="bg-glaciar-black text-white pt-16 pb-8 border-t border-[#333]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<footer class="bg-glaciar-obsidian text-white pt-24 pb-12 border-t border-white/10 relative overflow-hidden">
+    <!-- Subtle ambient glow -->
+    <div class="absolute -top-40 right-1/4 w-96 h-96 bg-glaciar-ice/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16 pb-20 border-b border-white/10">
             
-            <div class="col-span-1 md:col-span-1">
-                <span class="text-3xl font-extrabold tracking-[0.2em] text-white block mb-4">GLACIAR</span>
-                <p class="text-glaciar-gray-300 text-sm mb-6">
-                    Pure. Simple. Delivered.<br>
-                    Premium bottled water delivery service for homes and businesses.
+            <!-- Brand Column -->
+            <div class="md:col-span-4">
+                <div class="flex items-center gap-2.5 mb-6">
+                    <svg class="w-6 h-6 text-white filter drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]" viewBox="0 0 32 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 20L11 5L19 20" />
+                        <path d="M15 20L21 9L29 20" />
+                    </svg>
+                    <span class="text-2xl font-serif font-black tracking-[0.2em] text-white uppercase">GLACIAR</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-sm mb-8 font-light">
+                    Pure mountain spring water encased in high-performance thermal vessels. Designed for modern life, engineered for eternity.
                 </p>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-glaciar-gray-500 hover:text-white transition-colors">
-                        <span class="sr-only">Facebook</span>
-                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
-                    </a>
-                    <a href="#" class="text-glaciar-gray-500 hover:text-white transition-colors">
-                        <span class="sr-only">Instagram</span>
-                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg>
-                    </a>
+                <div class="text-xs uppercase tracking-widest text-slate-500 font-mono">
+                    ORIGIN: 07°18'N 80°45'E · 1,890M ALTITUDE
                 </div>
             </div>
             
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Shop</h4>
-                <ul class="space-y-3">
-                    <li><a href="{{ route('products.index') }}" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">All Products</a></li>
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Bottles & Packs</a></li>
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Dispensers</a></li>
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Subscribe & Save</a></li>
+            <!-- Links Column 1: The Boutique & Collection -->
+            <div class="md:col-span-2 col-span-6">
+                <h4 class="text-[11px] font-bold text-glaciar-ice uppercase tracking-ultra mb-6">The Boutique</h4>
+                <ul class="space-y-3.5 text-xs uppercase tracking-wider font-medium text-slate-400">
+                    <li><a href="{{ route('shop') }}" class="hover:text-white transition-colors text-cyan-300 font-bold">Shop All Formats</a></li>
+                    <li><a href="{{ route('collection') }}" class="hover:text-white transition-colors">Vessel Collection</a></li>
+                    <li><a href="{{ route('products.index', ['size' => 500]) }}" class="hover:text-white transition-colors">500ml Standard</a></li>
+                    <li><a href="{{ route('products.index', ['size' => 1000]) }}" class="hover:text-white transition-colors">1000ml Hydration</a></li>
+                    <li><a href="{{ route('products.index', ['size' => 5000]) }}" class="hover:text-white transition-colors">5L Table Jug</a></li>
+                    <li><a href="{{ route('products.index', ['size' => 19000]) }}" class="hover:text-white transition-colors">19L Dispenser</a></li>
                 </ul>
             </div>
             
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h4>
-                <ul class="space-y-3">
-                    <li><a href="{{ route('about') }}" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">About Us</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Contact</a></li>
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Careers</a></li>
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">Sustainability</a></li>
+            <!-- Links Column 2: Company & Science -->
+            <div class="md:col-span-2 col-span-6">
+                <h4 class="text-[11px] font-bold text-glaciar-ice uppercase tracking-ultra mb-6">Company</h4>
+                <ul class="space-y-3.5 text-xs uppercase tracking-wider font-medium text-slate-400">
+                    <li><a href="{{ route('about') }}" class="hover:text-white transition-colors">About Glaciar</a></li>
+                    <li><a href="{{ route('analysis') }}" class="hover:text-white transition-colors">Purity Analysis</a></li>
+                    <li><a href="{{ route('sustainability') }}" class="hover:text-white transition-colors">Sustainability</a></li>
+                    <li><a href="{{ route('faq') }}" class="hover:text-white transition-colors">Concierge FAQ</a></li>
+                    <li><a href="{{ route('contact') }}" class="hover:text-white transition-colors">Contact Concierge</a></li>
+                    <li><a href="{{ route('account.index') }}" class="hover:text-white transition-colors">Customer Portal</a></li>
                 </ul>
             </div>
             
-            <div class="col-span-1">
-                <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Support</h4>
-                <ul class="space-y-3">
-                    <li><a href="#" class="text-base text-glaciar-gray-300 hover:text-white transition-colors">FAQ</a></li>
-                    <li><span class="text-base text-glaciar-gray-300 block">hello@glaciarwater.com</span></li>
-                    <li><span class="text-base text-glaciar-gray-300 block">+94 11 234 5678</span></li>
-                </ul>
+            <!-- Newsletter Column -->
+            <div class="md:col-span-4">
+                <h4 class="text-[11px] font-bold text-glaciar-ice uppercase tracking-ultra mb-6">Stay Informed</h4>
+                <p class="text-xs text-slate-400 mb-4 font-light leading-relaxed">
+                    Receive announcements on new vessel releases, technical whitepapers, and seasonal reserves.
+                </p>
+                <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Glaciar.');" class="flex gap-2">
+                    @csrf
+                    <input type="email" placeholder="ENTER YOUR EMAIL" required class="bg-white/5 border border-white/15 text-white placeholder-slate-500 text-xs px-4 py-3 rounded-lg flex-grow focus:outline-none focus:border-glaciar-ice font-mono tracking-wider">
+                    <div class="gl-magnetic"><button type="submit" class="bg-white text-glaciar-obsidian px-5 py-3 text-xs uppercase tracking-widest font-bold rounded-lg hover:bg-glaciar-ice transition-colors flex-shrink-0">
+                        Join
+                    </button></div>
+                </form>
+                <p class="text-[10px] text-slate-500 mt-2.5 font-light">Zero marketing noise. Unsubscribe at any time.</p>
             </div>
 
         </div>
+
+        <!-- Oversized Architectural Wordmark -->
+        <div class="py-12 select-none pointer-events-none opacity-[0.07] text-center overflow-hidden gl-reveal-up">
+            <span class="text-[clamp(4.5rem,14vw,12rem)] font-black tracking-widest text-white leading-none block">
+                GLACIAR
+            </span>
+        </div>
         
-        <div class="border-t border-[#333] pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-glaciar-gray-500">
-            <p>&copy; {{ date('Y') }} Glaciar Water. All rights reserved.</p>
-            <div class="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+        <!-- Bottom Row -->
+        <div class="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+            <p>&copy; {{ date('Y') }} GLACIAR WATER CO. ALL RIGHTS RESERVED.</p>
+            <div class="flex items-center space-x-6 text-xs uppercase tracking-wider">
+                <a href="{{ route('collection') }}" class="hover:text-slate-300 transition-colors">The Collection</a>
+                <a href="{{ route('shop') }}" class="hover:text-slate-300 transition-colors">The Boutique</a>
+                <a href="{{ route('privacy') }}" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
+                <a href="{{ route('terms') }}" class="hover:text-slate-300 transition-colors">Terms of Service</a>
+                <a href="{{ route('faq') }}" class="hover:text-slate-300 transition-colors">FAQ</a>
             </div>
         </div>
     </div>

@@ -1,214 +1,258 @@
 @extends('layouts.customer')
 
 @section('content')
-    <div class="bg-white border-b border-glaciar-gray-100 pt-6 pb-4">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-extrabold text-glaciar-black mt-2">Checkout</h1>
-        </div>
-    </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<!-- Header Banner -->
+<div class="bg-[#020617] text-white pt-28 pb-12 border-b border-white/10 relative overflow-hidden">
+    <div class="absolute inset-0 bg-radial-gradient pointer-events-none opacity-40"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <span class="text-[10px] font-mono tracking-ultra uppercase text-cyan-400 font-bold block mb-2">
+            STAGE 02 / SECURE CHECKOUT
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white font-mono">
+            DISPATCH MANIFEST.
+        </h1>
+    </div>
+</div>
+
+<section class="py-16 bg-[#020617] text-white flex-grow min-h-[70vh] border-b border-white/10 gl-section-reveal relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
         <form action="{{ route('checkout.store') }}" method="POST">
             @csrf
             
-            <div class="flex flex-col lg:flex-row gap-12 lg:gap-24">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
                 
-                <!-- Checkout Form -->
-                <div class="flex-[1.5]">
+                <!-- Form Inputs (Columns 1-7) -->
+                <div class="lg:col-span-7 space-y-8 gl-reveal-item">
                     
                     @if(!Auth::check())
-                        <div class="bg-blue-50 border border-blue-100 text-blue-800 rounded-lg p-6 mb-8 flex items-center justify-between">
+                        <!-- Guest Notice Card -->
+                        <div class="p-5 rounded-2xl bg-[#0b1226]/85 backdrop-blur-xl border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.4)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
-                                <p class="font-medium">Already have an account?</p>
-                                <p class="text-sm mt-1 text-blue-600">Log in for faster checkout and to track your orders.</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-white font-mono">Existing Customer?</p>
+                                <p class="text-xs text-slate-400 font-light mt-0.5">Sign in to sync your saved zone schedule and view past orders.</p>
                             </div>
-                            <a href="{{ route('login') }}" class="px-4 py-2 bg-white rounded shadow-sm text-sm font-semibold border border-blue-200 hover:bg-blue-50 transition-colors">Log In</a>
+                            <a href="{{ route('login') }}" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-mono font-bold uppercase rounded-lg border border-white/20 transition-all text-center min-h-[44px] flex items-center justify-center">
+                                Sign In
+                            </a>
                         </div>
                     @endif
 
-                    <div class="space-y-12">
-                        <!-- Contact Information -->
-                        <div>
-                            <h2 class="text-2xl font-bold text-glaciar-black mb-6">Contact Information</h2>
-                            
-                            @if(Auth::check())
-                                <div class="bg-glaciar-gray-50 p-4 rounded-lg border border-glaciar-gray-200 mb-6 flex items-center">
-                                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center font-bold text-glaciar-black mr-4 border border-glaciar-gray-200">
-                                        {{ substr(Auth::user()->name, 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <p class="font-medium text-glaciar-black">{{ Auth::user()->name }}</p>
-                                        <p class="text-sm text-glaciar-gray-500">{{ Auth::user()->email }}</p>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="name" class="block text-sm font-medium text-glaciar-gray-700">Full name</label>
-                                        <input type="text" name="name" id="name" required class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black">
-                                    </div>
-                                    <div>
-                                        <label for="email" class="block text-sm font-medium text-glaciar-gray-700">Email address</label>
-                                        <input type="email" name="email" id="email" required class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black">
-                                    </div>
-                                </div>
-                            @endif
-                            
-                            <div class="mt-6">
-                                <label for="phone" class="block text-sm font-medium text-glaciar-gray-700">Phone number</label>
-                                <input type="tel" name="phone" id="phone" value="{{ Auth::user()->phone ?? '' }}" required class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black">
-                            </div>
+                    <!-- Step 1: Contact Information -->
+                    <div class="bg-[#0b1226]/85 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <div class="flex items-center gap-3 mb-6 pb-3 border-b border-white/10">
+                            <span class="w-6 h-6 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/40 text-xs font-mono font-bold flex items-center justify-center">1</span>
+                            <h2 class="text-xs font-mono uppercase tracking-widest font-bold text-white">Contact Details</h2>
                         </div>
-                        
-                        <!-- Delivery Address -->
-                        <div>
-                            <h2 class="text-2xl font-bold text-glaciar-black mb-6">Delivery Address</h2>
-                            
-                            <div class="space-y-6">
+
+                        @if(Auth::check())
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-white/[0.04] border border-white/10 mb-6">
+                                <div class="w-10 h-10 rounded-full bg-cyan-400/20 border border-cyan-400/30 text-cyan-300 flex items-center justify-center font-bold text-sm">
+                                    {{ substr(Auth::user()->name, 0, 1) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-slate-400 font-mono truncate">{{ Auth::user()->email }}</p>
+                                </div>
+                                <span class="text-[10px] font-mono text-cyan-300 bg-cyan-950/60 px-2 py-1 rounded border border-cyan-400/30">
+                                    AUTHENTICATED
+                                </span>
+                            </div>
+                        @else
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label for="address" class="block text-sm font-medium text-glaciar-gray-700">Street address</label>
-                                    <input type="text" name="address" id="address" value="{{ Auth::user()->address ?? '' }}" required class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black placeholder-glaciar-gray-300" placeholder="E.g. No 15, Galle Road">
+                                    <label for="name" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Full Name *</label>
+                                    <input type="text" name="name" id="name" required value="{{ old('name') }}" 
+                                           class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-500 font-mono min-h-[44px]" placeholder="E.g. James Nonis">
+                                    @error('name') <p class="text-rose-400 text-[11px] mt-1">{{ $message }}</p> @enderror
                                 </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="zone_id" class="block text-sm font-medium text-glaciar-gray-700">City / Delivery Zone</label>
-                                        <select id="zone_id" name="zone_id" required class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black">
-                                            @foreach($zones ?? [] as $zone)
-                                                <option value="{{ $zone->id }}" {{ (Auth::user()->zone_id ?? '') == $zone->id ? 'selected' : '' }}>{{ $zone->name }}</option>
-                                            @endforeach
-                                            <!-- Dummy data if empty -->
-                                            @if(empty($zones) || count($zones) == 0)
-                                                <option value="1">Colombo 01-15</option>
-                                                <option value="2">Colombo Suburbs</option>
-                                                <option value="3">Gampaha</option>
-                                                <option value="4">Kalutara</option>
-                                            @endif
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Schedule Delivery (Optional Subscription) -->
-                        <div class="bg-white border-2 border-glaciar-gray-200 rounded-xl p-6 relative" x-data="{ isSubscription: false }">
-                            <div class="absolute -top-3 left-4 bg-white px-2 text-sm font-bold text-glaciar-black flex items-center">
-                                <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Subscribe & Save
-                            </div>
-                            
-                            <label class="flex items-center mb-6 cursor-pointer">
-                                <input type="checkbox" name="is_subscription" x-model="isSubscription" class="w-5 h-5 rounded border-glaciar-gray-300 text-glaciar-black focus:ring-glaciar-black">
-                                <span class="ml-3 font-medium text-glaciar-black">Set up repeating delivery (Save up to 15%)</span>
-                            </label>
-                            
-                            <div x-show="isSubscription" x-transition class="space-y-4 pt-4 border-t border-glaciar-gray-100">
                                 <div>
-                                    <label for="frequency" class="block text-sm font-medium text-glaciar-gray-700">Delivery Frequency</label>
-                                    <select id="frequency" name="frequency" class="mt-1 block w-full rounded-md border-glaciar-gray-300 shadow-sm focus:border-glaciar-black focus:ring-glaciar-black">
-                                        <option value="weekly">Weekly</option>
-                                        <option value="biweekly">Every 2 Weeks</option>
-                                        <option value="monthly">Monthly</option>
-                                    </select>
-                                </div>
-                                <div class="bg-blue-50 text-sm text-blue-800 p-3 rounded-md">
-                                    Your designated sales rep will contact you to confirm the exact delivery days based on your zone schedule.
+                                    <label for="email" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Email Address *</label>
+                                    <input type="email" name="email" id="email" required value="{{ old('email') }}" 
+                                           class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-500 font-mono min-h-[44px]" placeholder="E.g. james@example.com">
+                                    @error('email') <p class="text-rose-400 text-[11px] mt-1">{{ $message }}</p> @enderror
                                 </div>
                             </div>
-                        </div>
+                        @endif
 
-                        <!-- Payment Method -->
                         <div>
-                            <h2 class="text-2xl font-bold text-glaciar-black mb-6">Payment</h2>
-                            
-                            <div class="space-y-4">
-                                <!-- Cash on Delivery option -->
-                                <label class="flex items-center justify-between p-4 border-2 border-glaciar-black rounded-lg cursor-pointer bg-glaciar-gray-50 relative">
-                                    <div class="flex items-center">
-                                        <input type="radio" name="payment_method" value="cash" checked class="w-5 h-5 text-glaciar-black focus:ring-glaciar-black border-glaciar-gray-300">
-                                        <span class="ml-3 font-bold text-glaciar-black block">Cash on Delivery</span>
-                                    </div>
-                                    <svg class="w-6 h-6 text-glaciar-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                </label>
-
-                                <!-- Card Payment (Placeholder) -->
-                                <label class="flex items-center justify-between p-4 border rounded-lg cursor-not-allowed bg-white opacity-60">
-                                    <div class="flex items-center">
-                                        <input type="radio" name="payment_method" value="card" disabled class="w-5 h-5 text-glaciar-gray-400 focus:ring-glaciar-gray-400 border-glaciar-gray-300 cursor-not-allowed">
-                                        <div class="ml-3 w-full">
-                                            <span class="font-medium text-glaciar-gray-600 block">Credit / Debit Card</span>
-                                            <span class="text-xs text-glaciar-gray-500 mt-1 block">Coming soon</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <div class="w-8 h-5 bg-glaciar-gray-200 rounded"></div>
-                                        <div class="w-8 h-5 bg-glaciar-gray-200 rounded"></div>
-                                    </div>
-                                </label>
-                            </div>
+                            <label for="phone" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Direct Phone Number *</label>
+                            <input type="tel" name="phone" id="phone" required value="{{ old('phone', Auth::user()->phone ?? '') }}" 
+                                   class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-500 font-mono min-h-[44px]" placeholder="E.g. +94 77 123 4567">
+                            @error('phone') <p class="text-rose-400 text-[11px] mt-1">{{ $message }}</p> @enderror
                         </div>
-
                     </div>
+
+                    <!-- Step 2: Delivery Destination -->
+                    <div class="bg-[#0b1226]/85 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <div class="flex items-center gap-3 mb-6 pb-3 border-b border-white/10">
+                            <span class="w-6 h-6 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/40 text-xs font-mono font-bold flex items-center justify-center">2</span>
+                            <h2 class="text-xs font-mono uppercase tracking-widest font-bold text-white">Delivery Location</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="address" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Street / Suite / Building Address *</label>
+                                <input type="text" name="address" id="address" required value="{{ old('address', Auth::user()->address ?? '') }}" 
+                                       class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-500 font-mono min-h-[44px]" placeholder="E.g. No. 42, Barnes Place, Cinnamon Gardens">
+                                @error('address') <p class="text-rose-400 text-[11px] mt-1">{{ $message }}</p> @enderror
+                            </div>
+
+                            <div>
+                                <label for="zone_id" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Delivery Zone *</label>
+                                <select id="zone_id" name="zone_id" required 
+                                        class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white font-mono min-h-[44px]">
+                                    <option value="" disabled {{ !old('zone_id') ? 'selected' : '' }} class="bg-slate-900 text-slate-400">Select your designated city / zone...</option>
+                                    @foreach($zones ?? [] as $zone)
+                                        <option value="{{ $zone->id }}" {{ old('zone_id', Auth::user()->zone_id ?? '') == $zone->id ? 'selected' : '' }} class="bg-slate-900 text-white">
+                                            {{ $zone->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('zone_id') <p class="text-rose-400 text-[11px] mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Optional Recurring Schedule -->
+                    <div class="bg-[#0b1226]/85 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" x-data="{ isSubscription: false }">
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" name="is_subscription" value="1" x-model="isSubscription" class="w-4 h-4 rounded text-cyan-400 focus:ring-cyan-400 border-white/20 bg-slate-900">
+                                <div>
+                                    <span class="text-xs font-mono font-bold uppercase tracking-wider text-white block">Automate Recurring Delivery</span>
+                                    <span class="text-[11px] text-slate-400 font-light block">Get automatic weekly replenishment without manual reordering.</span>
+                                </div>
+                            </label>
+                            <span class="text-[10px] font-mono text-cyan-300 bg-cyan-950/60 px-2.5 py-1 rounded border border-cyan-400/30 font-bold uppercase">Save 15%</span>
+                        </div>
+
+                        <div x-show="isSubscription" x-transition class="pt-4 mt-4 border-t border-white/10">
+                            <label for="frequency" class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 font-semibold">Delivery Cadence</label>
+                            <select id="frequency" name="frequency" class="w-full bg-[#030712] border border-white/15 rounded-xl px-4 py-3 text-xs font-mono text-white min-h-[44px]">
+                                <option value="weekly" selected class="bg-slate-900 text-white">Weekly (Every 7 days)</option>
+                                <option value="biweekly" class="bg-slate-900 text-white">Bi-Weekly (Every 14 days)</option>
+                                <option value="monthly" class="bg-slate-900 text-white">Monthly (Every 30 days)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Settlement / Payment Method -->
+                    <div class="bg-[#0b1226]/85 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <div class="flex items-center gap-3 mb-6 pb-3 border-b border-white/10">
+                            <span class="w-6 h-6 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/40 text-xs font-mono font-bold flex items-center justify-center">3</span>
+                            <h2 class="text-xs font-mono uppercase tracking-widest font-bold text-white">Payment Method</h2>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Option: Cash on Delivery -->
+                            <label class="flex items-center justify-between p-4 rounded-xl border border-cyan-400/40 bg-cyan-400/[0.06] hover:bg-cyan-400/[0.1] cursor-pointer transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="payment_method" value="cash" checked class="w-4 h-4 text-cyan-400 focus:ring-cyan-400 bg-slate-900 border-white/20">
+                                    <div>
+                                        <span class="text-xs font-mono font-bold uppercase tracking-wider text-white block">Cash on Delivery</span>
+                                        <span class="text-[11px] text-slate-400 font-light block">Pay our driver upon physical doorstep delivery.</span>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            </label>
+
+                            <!-- Option: Card upon Delivery -->
+                            <label class="flex items-center justify-between p-4 rounded-xl border border-white/15 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.05] cursor-pointer transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="payment_method" value="card" class="w-4 h-4 text-cyan-400 focus:ring-cyan-400 bg-slate-900 border-white/20">
+                                    <div>
+                                        <span class="text-xs font-mono font-bold uppercase tracking-wider text-white block">Card POS on Delivery</span>
+                                        <span class="text-[11px] text-slate-400 font-light block">Our representative brings a portable card terminal.</span>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            </label>
+
+                            <!-- Option: Bank Transfer -->
+                            <label class="flex items-center justify-between p-4 rounded-xl border border-white/15 bg-white/[0.02] hover:border-white/30 hover:bg-white/[0.05] cursor-pointer transition-all">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" name="payment_method" value="bank_transfer" class="w-4 h-4 text-cyan-400 focus:ring-cyan-400 bg-slate-900 border-white/20">
+                                    <div>
+                                        <span class="text-xs font-mono font-bold uppercase tracking-wider text-white block">Direct Bank Transfer</span>
+                                        <span class="text-[11px] text-slate-400 font-light block">Wire funds directly to Glaciar Water Co accounts.</span>
+                                    </div>
+                                </div>
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Order Summary Sidebar -->
-                <div class="flex-1">
-                    <div class="bg-white rounded-2xl p-8 border-2 border-glaciar-gray-100 shadow-sm sticky top-28">
-                        <h2 class="text-xl font-bold text-glaciar-black mb-6">Order Summary</h2>
-                        
-                        <ul class="divide-y divide-glaciar-gray-100 mb-6">
-                            @foreach($cartItems ?? [] as $item)
-                                <li class="py-4 flex justify-between">
-                                    <div class="flex">
-                                        <div class="w-12 h-12 bg-glaciar-gray-50 rounded border border-glaciar-gray-100 flex items-center justify-center mr-4">
-                                            <span class="text-xs font-bold text-glaciar-gray-400">{{ ($item->product->size_ml ?? 500) >= 1000 ? (($item->product->size_ml ?? 500) / 1000) . 'L' : ($item->product->size_ml ?? 500) . 'ml' }}</span>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-glaciar-black text-sm">{{ $item->product->name ?? 'Glaciar Product' }}</p>
-                                            <p class="text-glaciar-gray-500 text-sm">Qty: {{ $item->qty }}</p>
-                                        </div>
-                                    </div>
-                                    <p class="font-medium text-glaciar-black">LKR {{ number_format(($item->product->price ?? 100) * $item->qty, 0) }}</p>
-                                </li>
-                            @endforeach
-                            <!-- Dummy Data for display preview -->
-                            @if(empty($cartItems) || count($cartItems) == 0)
-                                <li class="py-4 flex justify-between">
-                                    <div class="flex">
-                                        <div class="w-12 h-12 bg-glaciar-gray-50 rounded border border-glaciar-gray-100 flex items-center justify-center mr-4"><span class="text-xs">19L</span></div>
-                                        <div><p class="font-semibold text-sm">Dispenser Bottle</p><p class="text-gray-500 text-sm">Qty: 2</p></div>
-                                    </div>
-                                    <p class="font-medium">LKR 700</p>
-                                </li>
-                            @endif
-                        </ul>
+                <!-- Sticky Order Summary Sidebar (Columns 8-12) -->
+                <div class="lg:col-span-5 lg:sticky lg:top-28 space-y-6 gl-reveal-item">
+                    <div class="bg-[#0b1226]/85 backdrop-blur-xl rounded-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-6 sm:p-8">
+                        <h2 class="text-xs font-mono uppercase tracking-ultra font-bold text-white mb-6 pb-3 border-b border-white/10">
+                            DISPATCH MANIFEST SUMMARY
+                        </h2>
 
-                        <dl class="space-y-4 text-sm text-glaciar-gray-600 border-t border-glaciar-gray-100 pt-4">
-                            <div class="flex items-center justify-between">
-                                <dt>Subtotal</dt>
-                                <dd class="font-medium text-glaciar-black">LKR {{ number_format($cartTotal ?? 700, 0) }}</dd>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <dt>Delivery</dt>
-                                <dd class="font-medium text-green-600">Free</dd>
-                            </div>
-                        </dl>
-                        
-                        <div class="border-t border-glaciar-gray-200 pt-4 mt-4 flex items-center justify-between mb-8">
-                            <dt class="text-lg font-bold text-glaciar-black">Total</dt>
-                            <dd class="text-2xl font-black text-glaciar-black">LKR {{ number_format($cartTotal ?? 700, 0) }}</dd>
+                        <!-- Line Items -->
+                        <div class="divide-y divide-white/10 max-h-72 overflow-y-auto pr-1 mb-6">
+                            @foreach($cartItems ?? [] as $item)
+                                @php
+                                    $p = $item->product;
+                                    $size = $p->size_ml >= 1000 ? ($p->size_ml / 1000) . 'L' : $p->size_ml . 'ml';
+                                    $img = $p->image_url ?? asset('images/products/' . ($p->size_ml ?? 500) . '.jpg');
+                                @endphp
+                                <div class="py-3.5 flex items-center justify-between gap-3 text-xs">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-12 bg-white/5 rounded border border-white/10 p-1 flex-shrink-0 flex items-center justify-center">
+                                            <img src="{{ $img }}" alt="{{ $p->name }}" class="w-full h-full object-contain" />
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-white truncate font-mono">{{ $p->name }}</p>
+                                            <p class="text-[11px] font-mono text-slate-400">Qty: {{ $item->qty }} · {{ $size }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="font-mono font-bold text-cyan-300 whitespace-nowrap">
+                                        LKR {{ number_format($p->price * $item->qty, 0) }}
+                                    </span>
+                                </div>
+                            @endforeach
                         </div>
-                        
-                        <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-lg shadow-sm text-lg font-bold text-white bg-glaciar-black hover:bg-glaciar-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-glaciar-black transition-colors">
-                            Complete Order
+
+                        <!-- Calculations -->
+                        <div class="space-y-3 pt-4 border-t border-white/10 text-xs font-mono text-slate-300 mb-6">
+                            <div class="flex items-center justify-between">
+                                <span>SUBTOTAL</span>
+                                <span class="font-bold text-white">LKR {{ number_format($cartTotal ?? 0, 0) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>DELIVERY DISPATCH</span>
+                                <span class="font-bold text-cyan-400">COMPLIMENTARY</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-white/10 flex items-baseline justify-between mb-8">
+                            <span class="text-xs font-mono font-bold uppercase text-slate-400 tracking-wider">TOTAL DUE</span>
+                            <span class="text-2xl font-black text-white font-mono tracking-tight">
+                                LKR {{ number_format($cartTotal ?? 0, 0) }}
+                            </span>
+                        </div>
+
+                        <button type="submit" 
+                                class="w-full py-4 px-6 bg-gradient-to-r from-cyan-400 via-sky-400 to-cyan-300 hover:brightness-110 text-slate-950 text-xs font-bold font-mono uppercase tracking-widest rounded-xl transition-all shadow-[0_0_25px_rgba(56,189,248,0.35)] flex items-center justify-center gap-2 transform hover:-translate-y-0.5 min-h-[48px]">
+                            <span>Place Dispatch Order</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>
                         </button>
-                        
-                        <p class="text-xs text-center text-glaciar-gray-400 mt-4">
-                            By placing this order, you agree to our Terms of Service and Privacy Policy. All payments are collected by our delivery representative.
+
+                        <p class="text-[10px] text-center text-slate-400 font-mono mt-4">
+                            By placing this order, you confirm acceptance of Glaciar delivery protocol.
                         </p>
                     </div>
                 </div>
+
             </div>
         </form>
+
     </div>
+</section>
+
 @endsection

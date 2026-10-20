@@ -31,9 +31,20 @@ Route::post('logout', [AuthController::class, 'destroy'])
     ->middleware('auth')
     ->name('logout');
 
+use App\Http\Controllers\Customer\ContactController;
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', fn () => view('customer.about'))->name('about');
-Route::get('/contact', fn () => view('customer.contact'))->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+Route::get('/terms', fn () => view('customer.terms'))->name('terms');
+Route::get('/privacy', fn () => view('customer.privacy'))->name('privacy');
+Route::get('/sustainability', fn () => view('customer.sustainability'))->name('sustainability');
+Route::get('/analysis', fn () => view('customer.analysis'))->name('analysis');
+Route::get('/faq', fn () => view('customer.faq'))->name('faq');
+
+Route::get('/collection', [ProductController::class, 'collection'])->name('collection');
+Route::get('/shop', [ProductController::class, 'index'])->name('shop');
 
 Route::prefix('products')->name('products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');
@@ -43,6 +54,7 @@ Route::prefix('products')->name('products.')->group(function () {
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'store'])->name('store');
+    Route::patch('/update/{id}', [CartController::class, 'update'])->name('update');
     Route::delete('/remove/{id}', [CartController::class, 'destroy'])->name('destroy');
 });
 
